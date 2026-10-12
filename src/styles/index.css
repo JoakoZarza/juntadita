@@ -489,3 +489,44 @@ select option {
   background-color: rgba(245, 166, 35, 0.05);
   border-radius: var(--radius-sm);
 }
+
+/* Animación de brillo metálico sutil para el banner iOS */
+@keyframes brillo-deslizante {
+  from { background-position: 0 0; }
+  to   { background-position: 200px 0; }
+}
+
+.banner-ios {
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid var(--accent-coral) !important;
+  box-shadow: 0 0 12px -4px rgba(224, 86, 56, 0.35) !important;
+}
+
+.banner-ios::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    60deg,
+    transparent 0px,
+    transparent 40px,
+    rgba(255, 255, 255, 0.035) 40px,
+    rgba(255, 255, 255, 0.035) 80px
+  );
+  animation: brillo-deslizante 7s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.banner-ios > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-ios::before {
+    animation: none;
+  }
+}
+

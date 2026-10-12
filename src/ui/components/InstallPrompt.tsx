@@ -49,10 +49,13 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
     setDismissed(true);
   };
 
+  const esModoIOS = isIOS && !canInstall;
+
   return (
     <aside
       role="banner"
       aria-label="Aviso para instalar la aplicación"
+      className={esModoIOS ? 'banner-ios' : undefined}
       style={{
         position: 'fixed',
         bottom: 'calc(76px + var(--safe-bottom))',
@@ -61,15 +64,20 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
         width: 'calc(100% - 32px)',
         maxWidth: '448px',
         backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
+        border: esModoIOS
+          ? '1.5px solid var(--accent-coral)'
+          : '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-md)',
         padding: '12px 14px',
         zIndex: 85,
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+        boxShadow: esModoIOS
+          ? '0 0 12px -4px rgba(224, 86, 56, 0.35)'
+          : '0 8px 24px rgba(0, 0, 0, 0.45)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '10px',
+        overflow: 'hidden',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
