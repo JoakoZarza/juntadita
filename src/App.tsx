@@ -4,6 +4,7 @@ import { useJuntada } from './hooks/useJuntada';
 import { Button } from './ui/components/Button';
 import { FAB } from './ui/components/FAB';
 import { Header } from './ui/components/Header';
+import { InstallPrompt } from './ui/components/InstallPrompt';
 import { Modal } from './ui/components/Modal';
 import { TabBar, TabId } from './ui/components/TabBar';
 import { CargarGasto } from './ui/forms/CargarGasto';
@@ -77,6 +78,7 @@ export const App: React.FC = () => {
     return (
       <div className="app-container">
         <CrearJuntada onSubmit={crearJuntada} onImportar={importarJuntada} />
+        <InstallPrompt />
       </div>
     );
   }
@@ -260,6 +262,9 @@ export const App: React.FC = () => {
           </button>
         </aside>
       )}
+
+      {/* Banner de instalación guiada de PWA */}
+      <InstallPrompt />
     </div>
   );
 };
