@@ -149,16 +149,10 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
   ).filter((cat) => (liquidacion?.totales.por_categoria[cat] || 0) > 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="stack gap-20">
       {/* SECCIÓN 1: Estado de la juntada */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div className="screen-title" style={{ marginBottom: 0 }}>
+      <div className="tab-header">
+        <div className="screen-title">
           <PieChart size={22} color="var(--accent-coral)" />
           <span>Resumen de cuentas</span>
         </div>
@@ -179,26 +173,14 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
       {/* SECCIÓN 2: Card de total general (destacado con gradiente) */}
       {hayGastos && (
         <div className="resumen-total-card">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              Fondo total de la juntada
-            </span>
-            <span
-              className="font-title tabular-nums"
-              style={{
-                fontSize: '36px',
-                fontWeight: 700,
-                color: '#FFFFFF',
-                lineHeight: 1.1,
-              }}
-            >
-              ${formatearMonto(totalGeneral)}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          <div className="stack gap-4">
+            <span className="text-sm fw-600 c-secondary">Fondo total de la juntada</span>
+            <span className="monto resumen-total-monto">${formatearMonto(totalGeneral)}</span>
+            <span className="text-sm c-secondary resumen-promedio">
               {todosParticipanDeTodo ? (
                 <>
                   Promedio por cabeza:{' '}
-                  <strong style={{ color: 'var(--text-primary)' }} className="tabular-nums">
+                  <strong className="c-primary tabular-nums">
                     ${formatearMonto(promedioPorCabeza)}
                   </strong>
                 </>
@@ -226,14 +208,12 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
 
       {/* SECCIÓN 3: Totales por categoría */}
       {hayGastos && categoriasConGasto.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-            Totales por categoría
-          </span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="stack gap-8">
+          <span className="section-label">Totales por categoría</span>
+          <div className="stack gap-8">
             {categoriasConGasto.map((cat) => (
               <div key={cat} className="categoria-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="row gap-8">
                   <Chip
                     label={cat}
                     categoria={cat}
@@ -242,14 +222,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
                   />
                 </div>
 
-                <span
-                  className="font-title tabular-nums"
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    color: 'var(--text-primary)',
-                  }}
-                >
+                <span className="monto text-base c-primary">
                   ${formatearMonto(liquidacion!.totales.por_categoria[cat])}
                 </span>
               </div>
@@ -260,13 +233,11 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
 
       {/* SECCIÓN 4: Transferencias directas minimizadas */}
       {hayGastos && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              Transferencias
-            </span>
+        <div className="stack gap-10">
+          <div className="row-between">
+            <span className="section-label">Transferencias</span>
             {liquidacion && liquidacion.transferencias.length > 0 && (
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span className="text-xs c-muted">
                 {liquidacion.transferencias.length}{' '}
                 {liquidacion.transferencias.length === 1 ? 'pago' : 'pagos'}
               </span>
@@ -274,66 +245,32 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           </div>
 
           {liquidacion && liquidacion.transferencias.length === 0 ? (
-            <div
-              className="card"
-              style={{
-                textAlign: 'center',
-                padding: '20px 16px',
-                color: 'var(--accent-emerald)',
-                fontSize: '14px',
-                fontWeight: 600,
-              }}
-            >
+            <div className="card card-vacia card-vacia-sm c-emerald text-sm fw-600">
               No hay transferencias pendientes. ¡Todos al día!
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="stack gap-8">
               {liquidacion?.transferencias.map((t, idx) => {
                 const acreedor = juntada.personas.find((p) => p.id === t.to_persona_id);
                 return (
                   <div
                     key={`${t.from_persona_id}-${t.to_persona_id}-${idx}`}
-                    className="card"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 16px',
-                    }}
+                    className="card transferencia-card"
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                          {t.from_apodo}
-                        </span>
-                        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>→</span>
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                          {t.to_apodo}
-                        </span>
+                    <div className="stack gap-3">
+                      <div className="row gap-8">
+                        <span className="nombre">{t.from_apodo}</span>
+                        <span className="text-sm c-secondary">→</span>
+                        <span className="nombre">{t.to_apodo}</span>
                       </div>
                       {acreedor?.alias_cobro && (
-                        <span
-                          style={{
-                            fontSize: '12px',
-                            color: 'var(--text-secondary)',
-                            fontFamily: 'monospace',
-                          }}
-                        >
+                        <span className="text-xs c-secondary mono">
                           alias: {acreedor.alias_cobro}
                         </span>
                       )}
                     </div>
 
-                    <span
-                      className="font-title tabular-nums"
-                      style={{
-                        fontSize: '17px',
-                        fontWeight: 700,
-                        color: 'var(--accent-coral)',
-                      }}
-                    >
-                      ${formatearMonto(t.monto)}
-                    </span>
+                    <span className="monto text-lg c-coral">${formatearMonto(t.monto)}</span>
                   </div>
                 );
               })}
@@ -343,60 +280,39 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
       )}
 
       {/* SECCIÓN 5: Balances individuales */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          Balances individuales
-        </span>
+      <div className="stack gap-10">
+        <span className="section-label">Balances individuales</span>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="stack gap-8">
           {juntada.personas.map((persona) => {
             const balance = getBalancePersona(persona.id);
 
-            let colorBalance = 'var(--text-muted)';
+            let claseBalance = 'c-muted';
             let textoMonto = '$0';
 
             if (balance.tipo === 'acreedor') {
-              colorBalance = 'var(--accent-emerald)';
+              claseBalance = 'c-emerald';
               textoMonto = `+$${formatearMonto(balance.monto)}`;
             } else if (balance.tipo === 'deudor') {
-              colorBalance = 'var(--accent-coral)';
+              claseBalance = 'c-coral';
               textoMonto = `-$${formatearMonto(balance.monto)}`;
             }
 
             return (
               <div key={persona.id} className="balance-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="avatar-circle" style={{ margin: 0 }}>
+                <div className="row gap-10">
+                  <div className="avatar-circle avatar-solo">
                     {persona.apodo.charAt(0).toUpperCase()}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span
-                      style={{
-                        fontSize: '15px',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)',
-                      }}
-                    >
-                      {persona.apodo}
-                    </span>
+                  <div className="row gap-6">
+                    <span className="nombre">{persona.apodo}</span>
                     {persona.es_organizador && (
-                      <span className="badge-organizador" style={{ fontSize: '11px' }}>
-                        Organizador
-                      </span>
+                      <span className="badge-organizador">Organizador</span>
                     )}
                   </div>
                 </div>
 
-                <span
-                  className="font-title tabular-nums"
-                  style={{
-                    fontSize: '17px',
-                    fontWeight: 700,
-                    color: colorBalance,
-                  }}
-                >
-                  {textoMonto}
-                </span>
+                <span className={`monto text-lg ${claseBalance}`}>{textoMonto}</span>
               </div>
             );
           })}
@@ -405,54 +321,29 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
 
       {/* SECCIÓN 6: Mensaje final para WhatsApp */}
       {hayGastos ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-            Mensaje para el grupo
-          </span>
+        <div className="stack gap-12">
+          <span className="section-label">Mensaje para el grupo</span>
 
           <div className="mensaje-bloque">{mensajeWhatsApp}</div>
 
           <Button
             variant="primary"
             fullWidth
-            icon={copiado ? <Check size={18} color="#10B981" /> : <Copy size={18} />}
+            icon={copiado ? <Check size={18} /> : <Copy size={18} />}
             onClick={handleCopiarMensaje}
-            style={
-              copiado
-                ? {
-                    backgroundColor: 'rgba(16, 185, 129, 0.18)',
-                    borderColor: 'var(--accent-emerald)',
-                    color: 'var(--accent-emerald)',
-                  }
-                : undefined
-            }
+            className={copiado ? 'btn-exito' : ''}
           >
             {copiado ? 'Copiado' : 'Copiar mensaje'}
           </Button>
         </div>
       ) : (
-        <div
-          className="card"
-          style={{
-            textAlign: 'center',
-            padding: '32px 16px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <span style={{ fontSize: '14px' }}>Cargá gastos para ver la liquidación</span>
+        <div className="card card-vacia">
+          <span className="text-sm">Cargá gastos para ver la liquidación</span>
         </div>
       )}
 
       {/* SECCIÓN 6: Acciones de cierre y exportación */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          paddingTop: '8px',
-          borderTop: '1px solid var(--border-subtle)',
-        }}
-      >
+      <div className="resumen-acciones">
         {juntada.estado === 'abierta' ? (
           <Button
             variant="primary"
@@ -471,7 +362,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           </Button>
         )}
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex gap-8">
           <Button
             variant="secondary"
             fullWidth
@@ -497,7 +388,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           accept=".json,application/json"
           ref={fileInputRef}
           onChange={handleArchivoSeleccionado}
-          style={{ display: 'none' }}
+          hidden
         />
       </div>
 
@@ -591,21 +482,9 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           </>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="stack gap-10">
           <p>Esto reemplaza tu juntada actual. ¿Querés exportar la actual antes?</p>
-          {errorImport && (
-            <div
-              style={{
-                padding: '8px 12px',
-                backgroundColor: 'var(--accent-danger-bg)',
-                color: 'var(--accent-danger)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '13px',
-              }}
-            >
-              {errorImport}
-            </div>
-          )}
+          {errorImport && <div className="error-box text-sm">{errorImport}</div>}
         </div>
       </Modal>
     </div>

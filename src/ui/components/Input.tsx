@@ -12,67 +12,29 @@ export const Input: React.FC<InputProps> = ({
   prefixText,
   id,
   className = '',
-  style,
   ...props
 }) => {
   const inputId = id || (label ? `input-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined);
 
+  const clases = ['input-field', prefixText && 'has-prefix', error && 'has-error', className]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+    <div className="field">
       {label && (
-        <label
-          htmlFor={inputId}
-          style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            color: 'var(--text-secondary)',
-            letterSpacing: '0.01em',
-          }}
-        >
+        <label htmlFor={inputId} className="field-label">
           {label}
         </label>
       )}
 
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-        {prefixText && (
-          <span
-            style={{
-              position: 'absolute',
-              left: '14px',
-              color: 'var(--text-secondary)',
-              fontSize: '15px',
-              fontWeight: 600,
-              pointerEvents: 'none',
-            }}
-          >
-            {prefixText}
-          </span>
-        )}
+      <div className="field-control">
+        {prefixText && <span className="field-prefix">{prefixText}</span>}
 
-        <input
-          id={inputId}
-          className={`input-field ${className}`}
-          style={{
-            paddingLeft: prefixText ? '32px' : '14px',
-            borderColor: error ? 'var(--accent-danger)' : 'var(--border-subtle)',
-            ...style,
-          }}
-          {...props}
-        />
+        <input id={inputId} className={clases} {...props} />
       </div>
 
-      {error && (
-        <span
-          style={{
-            fontSize: '12px',
-            color: 'var(--accent-danger)',
-            marginTop: '2px',
-            fontWeight: 500,
-          }}
-        >
-          {error}
-        </span>
-      )}
+      {error && <span className="field-error">{error}</span>}
     </div>
   );
 };

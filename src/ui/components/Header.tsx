@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Copy, Spade, Trophy, Wallet } from 'lucide-react';
 import { Juntada } from '../../core/types';
+import { Button } from './Button';
 
 export interface HeaderProps {
   juntada: Juntada;
@@ -35,59 +36,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header
-      style={{
-        backgroundColor: 'var(--bg-surface)',
-        borderBottom: '1px solid var(--border-subtle)',
-        padding: '10px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        minHeight: '64px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflow: 'hidden' }}>
-        <h1
-          className="font-title"
-          style={{
-            fontSize: '18px',
-            color: 'var(--text-primary)',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-          title={juntada.nombre}
-        >
+    <header className="app-header">
+      <div className="app-header-info">
+        <h1 className="font-title app-header-titulo" title={juntada.nombre}>
           {juntada.nombre}
         </h1>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className="row gap-6">
           <Wallet size={14} color="var(--text-secondary)" />
-          <span
-            style={{
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-              fontFamily: 'monospace',
-            }}
-          >
-            {juntada.alias_cobro}
-          </span>
+          <span className="text-sm c-secondary mono">{juntada.alias_cobro}</span>
 
           <button
             onClick={handleCopiarAlias}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: '2px 6px',
-              borderRadius: 'var(--radius-sm)',
-              color: copiado ? 'var(--accent-emerald)' : 'var(--text-secondary)',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              minHeight: '26px',
-              minWidth: '26px',
-            }}
+            className={`alias-copiar ${copiado ? 'is-copiado' : ''}`}
             title="Copiar alias"
             aria-label="Copiar alias"
           >
@@ -96,78 +57,36 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="row gap-8">
         {tieneFutbol && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
+            iconOnly
+            icon={<Trophy size={18} />}
             onClick={() => onAbrirModulo?.('futbol')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-secondary)',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-full)',
-              width: '38px',
-              height: '38px',
-            }}
             title="Cancha de Fútbol"
             aria-label="Cancha de Fútbol"
-          >
-            <Trophy size={18} />
-          </button>
+          />
         )}
 
         {tieneTruco && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
+            iconOnly
+            icon={<Spade size={18} />}
             onClick={() => onAbrirModulo?.('truco')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-secondary)',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-full)',
-              width: '38px',
-              height: '38px',
-            }}
             title="Anotador de Truco"
             aria-label="Anotador de Truco"
-          >
-            <Spade size={18} />
-          </button>
+          />
         )}
 
-        <button
-          onClick={onNuevaJuntada}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            backgroundColor: 'transparent',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-full)',
-            padding: '6px 14px',
-            minHeight: '36px',
-            transition: 'all var(--transition-fast)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--accent-coral)';
-            e.currentTarget.style.color = 'var(--accent-coral)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-subtle)';
-            e.currentTarget.style.color = 'var(--text-primary)';
-          }}
-        >
+        <Button type="button" variant="outline" size="sm" pill onClick={onNuevaJuntada}>
           Nueva
-        </button>
+        </Button>
       </div>
     </header>
   );

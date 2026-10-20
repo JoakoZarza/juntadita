@@ -70,17 +70,7 @@ export const App: React.FC = () => {
 
   if (cargando) {
     return (
-      <div
-        className="app-container"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-secondary)',
-          fontFamily: 'var(--font-title)',
-          fontSize: '16px',
-        }}
-      >
+      <div className="app-container app-cargando">
         Iniciando Juntadita...
       </div>
     );
@@ -291,45 +281,13 @@ export const App: React.FC = () => {
 
       {/* Banner discreto de actualización PWA */}
       {hayNuevaVersion && (
-        <aside
-          role="status"
-          aria-live="polite"
-          style={{
-            position: 'fixed',
-            bottom: '76px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 'calc(100% - 32px)',
-            maxWidth: '448px',
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--accent-coral)',
-            borderRadius: 'var(--radius-md)',
-            padding: '10px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            zIndex: 90,
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-          }}
-        >
-          <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>
+        <aside role="status" aria-live="polite" className="banner-flotante banner-actualizacion">
+          <span className="text-sm c-primary fw-500">
             Hay una versión nueva. Recargá para actualizar.
           </span>
-          <button
-            type="button"
-            onClick={() => updateSWRef.current?.(true)}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: 'var(--accent-coral)',
-              color: '#FFFFFF',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: 'var(--font-title)',
-            }}
-          >
+          <Button type="button" size="sm" onClick={() => updateSWRef.current?.(true)}>
             Recargar
-          </button>
+          </Button>
         </aside>
       )}
 

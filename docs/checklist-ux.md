@@ -45,20 +45,20 @@ Prioridad: **P0** = se nota/rompe confianza · **P1** = pulido de producto · **
 
 ## 5. Consistencia visual y de código
 
-- [ ] **P0** Mover los estilos inline a clases/componentes: hay ~240 bloques `style={{…}}` (45 en `ResumenView`, 45 en `FutbolModulo`, 35 en `CargarGasto`). Es la causa raíz de casi todas las inconsistencias.
-- [ ] **P1** Colores hardcodeados fuera de los tokens de `styles/index.css`: `#FFFFFF`, `#10B981`, `#3B82F6`, `#60A5FA`, `#2563EB`, `#F5A623`, `rgba(224,86,56,…)`. Crear tokens `--text-on-accent`, `--accent-blue`, `--accent-coral-soft`, etc.
+- [x] **P0** Mover los estilos inline a clases/componentes: hay ~240 bloques `style={{…}}` (45 en `ResumenView`, 45 en `FutbolModulo`, 35 en `CargarGasto`). Es la causa raíz de casi todas las inconsistencias. → Hecho: no queda ningún `style={{…}}` en los `.tsx`; todo está en clases de `styles/index.css` (utilidades de layout/tipografía + clases por componente).
+- [x] **P1** Colores hardcodeados fuera de los tokens de `styles/index.css`: `#FFFFFF`, `#10B981`, `#3B82F6`, `#60A5FA`, `#2563EB`, `#F5A623`, `rgba(224,86,56,…)`. Crear tokens `--text-on-accent`, `--accent-blue`, `--accent-coral-soft`, etc. → Hecho: tokens `--text-on-accent`, `--accent-blue(-light|-strong|-soft)`, `--accent-coral-(tint|soft|border)`, `--accent-amber-*`, `--accent-emerald-*`, `--overlay-subtle`, `--bg-backdrop`.
 - [ ] **P1** El coral significa a la vez "marca/acción primaria" y "deuda" (balances negativos y transferencias en `ResumenView`). Usar un color semántico propio para deuda.
-- [ ] **P1** Botones secundarios hechos a mano (Todos/Ninguno, "+ Agregar aportante", "Nueva" del header, botones de ícono, "Cancelar" del formulario) en vez de `Button`. Agregar variantes `size="sm"` e `icon-only` y usarlas.
+- [x] **P1** Botones secundarios hechos a mano (Todos/Ninguno, "+ Agregar aportante", "Nueva" del header, botones de ícono, "Cancelar" del formulario) en vez de `Button`. Agregar variantes `size="sm"` e `icon-only` y usarlas. → Hecho: `Button` suma `size="sm"`, `iconOnly`, `pill` y las variantes `outline` y `link`. Quedan a mano solo los controles con estado propio (chips de modalidad, toggle a 15/a 30, botones +1/-1 del Truco, copiar alias del header, cerrar modal).
 - [ ] **P1** Inputs: el alias en `PersonasView` es un `<input>` crudo con otro padding/tamaño que `Input`; el select y el monto en `CargarGasto` tampoco usan el componente.
 - [ ] **P1** Tamaños táctiles: botones de 26–32 px (copiar alias en `Header`, borrar gasto). Mínimo 44 px.
-- [ ] **P1** Escala tipográfica: hay 11, 12, 13, 14, 15, 16, 17, 18, 22, 24, 28 y 36 px sueltos. Definir 5–6 pasos como tokens.
+- [x] **P1** Escala tipográfica: hay 11, 12, 13, 14, 15, 16, 17, 18, 22, 24, 28 y 36 px sueltos. Definir 5–6 pasos como tokens. → Hecho: `--text-xs` 12, `--text-sm` 14, `--text-base` 16, `--text-lg` 18, `--text-xl` 24, `--text-2xl` 36 (+ clases `.text-*`). Los tamaños intermedios se redondearon al paso más cercano (13→14, 15→16, 17→18, 20→18, 22/28→24).
 - [ ] **P1** Modal de import con 3 botones en fila (`ResumenView.tsx`) desborda en pantallas chicas: apilarlos verticalmente.
 - [x] **P2** "+ Agregar aportante" muestra el `+` dos veces (ícono `Plus` + texto).
 - [x] **P2** "Truco" en las actividades se guarda como categoría "Otros" (`CrearJuntada.tsx`, `Header.tsx`): el usuario elige "Truco" y ve "Otros" en los gastos. Unificar el naming.
 - [ ] **P2** Título de `CargarGasto` descentrado: el spacer derecho mide 48 px y el botón "Cancelar" bastante más.
 - [ ] **P2** Abreviaturas y tono: "3/5 pers", "(Org)", "Apodo del pibe…". Elegir un registro (voseo neutro) y no abreviar.
 - [x] **P2** "Promedio por cabeza" divide por todas las personas aunque no todas participen de cada gasto: es engañoso. Cambiar el texto o el cálculo.
-- [ ] **P2** Safe area: `CargarGasto` usa `env(safe-area-inset-bottom, 16px)` directo en vez de `var(--safe-bottom)`.
+- [x] **P2** Safe area: `CargarGasto` usa `env(safe-area-inset-bottom, 16px)` directo en vez de `var(--safe-bottom)`. → Hecho de paso: las pantallas completas usan `var(--safe-bottom)`.
 - [ ] **P2** El FAB en Personas enfoca el input con `querySelector` por placeholder (`App.tsx:120`): frágil, usar `ref`.
 
 ## Extra: accesibilidad (suma mucho a "producto profesional")
