@@ -4,6 +4,7 @@ node_modules/
 # Production
 dist/
 dist-ssr/
+dev-dist/
 
 # Environment variables & local files
 *.local

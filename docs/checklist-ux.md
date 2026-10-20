@@ -25,10 +25,10 @@ Prioridad: **P0** = se nota/rompe confianza · **P1** = pulido de producto · **
 - [x] **P0** Se pueden sumar personas con la juntada cerrada: `PersonasView` no mira `juntada.estado` y `agregarPersona` tampoco lo valida (el modal de cierre dice que no se puede).
 - [ ] **P1** Borrar persona deshabilitado: el motivo solo está en `title` (tooltip), invisible en mobile. Mostrar el motivo al tocar (toast o texto inline).
 - [ ] **P1** Edición inline de alias en Personas no tiene `maxLength` y se salta la validación de 60 caracteres de `agregarPersona`.
-- [ ] **P1** `CrearJuntada`: los errores no se limpian al escribir; agregar `maxLength` (apodo 30) para que coincida con las reglas del resto de la app.
+- [x] **P1** `CrearJuntada`: los errores no se limpian al escribir; agregar `maxLength` (apodo 30) para que coincida con las reglas del resto de la app.
 - [ ] **P1** Monto sin tope: un número de 16+ dígitos rompe el layout y pierde precisión con `parseInt`. Poner un máximo razonable y formatear con separador de miles mientras se escribe.
-- [ ] **P1** Errores que se tragan en silencio: ~~resultado de `onEliminarGasto`/`onEliminarPersona`/`onCerrarJuntada` ignorado~~ (ya muestran toast); fallo de portapapeles en `Header.tsx` y `ResumenView.tsx` sin mensaje.
-- [ ] **P1** Fallo al persistir en localStorage (`useJuntada.ts`, `console.error`): avisar al usuario ("No pudimos guardar, exportá un backup").
+- [x] **P1** Errores que se tragan en silencio: ~~resultado de `onEliminarGasto`/`onEliminarPersona`/`onCerrarJuntada` ignorado~~ (ya muestran toast); fallo de portapapeles en `Header.tsx` y `ResumenView.tsx` sin mensaje.
+- [x] **P1** Fallo al persistir en localStorage (`useJuntada.ts`, `console.error`): avisar al usuario ("No pudimos guardar, exportá un backup").
 - [ ] **P2** Error de import en `CrearJuntada`: el mensaje viene crudo de la excepción. Traducirlo a algo humano ("Ese archivo no es un backup de Juntadita").
 - [ ] **P2** Agregar un Error Boundary global con pantalla de "Algo salió mal" + botón para exportar el backup.
 
@@ -54,10 +54,10 @@ Prioridad: **P0** = se nota/rompe confianza · **P1** = pulido de producto · **
 - [ ] **P1** Escala tipográfica: hay 11, 12, 13, 14, 15, 16, 17, 18, 22, 24, 28 y 36 px sueltos. Definir 5–6 pasos como tokens.
 - [ ] **P1** Modal de import con 3 botones en fila (`ResumenView.tsx`) desborda en pantallas chicas: apilarlos verticalmente.
 - [x] **P2** "+ Agregar aportante" muestra el `+` dos veces (ícono `Plus` + texto).
-- [ ] **P2** "Truco" en las actividades se guarda como categoría "Otros" (`CrearJuntada.tsx`, `Header.tsx`): el usuario elige "Truco" y ve "Otros" en los gastos. Unificar el naming.
+- [x] **P2** "Truco" en las actividades se guarda como categoría "Otros" (`CrearJuntada.tsx`, `Header.tsx`): el usuario elige "Truco" y ve "Otros" en los gastos. Unificar el naming.
 - [ ] **P2** Título de `CargarGasto` descentrado: el spacer derecho mide 48 px y el botón "Cancelar" bastante más.
 - [ ] **P2** Abreviaturas y tono: "3/5 pers", "(Org)", "Apodo del pibe…". Elegir un registro (voseo neutro) y no abreviar.
-- [ ] **P2** "Promedio por cabeza" divide por todas las personas aunque no todas participen de cada gasto: es engañoso. Cambiar el texto o el cálculo.
+- [x] **P2** "Promedio por cabeza" divide por todas las personas aunque no todas participen de cada gasto: es engañoso. Cambiar el texto o el cálculo.
 - [ ] **P2** Safe area: `CargarGasto` usa `env(safe-area-inset-bottom, 16px)` directo en vez de `var(--safe-bottom)`.
 - [ ] **P2** El FAB en Personas enfoca el input con `querySelector` por placeholder (`App.tsx:120`): frágil, usar `ref`.
 

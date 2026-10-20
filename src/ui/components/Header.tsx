@@ -6,12 +6,14 @@ export interface HeaderProps {
   juntada: Juntada;
   onNuevaJuntada: () => void;
   onAbrirModulo?: (modulo: 'futbol' | 'truco') => void;
+  onCopiarFallido?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   juntada,
   onNuevaJuntada,
   onAbrirModulo,
+  onCopiarFallido,
 }) => {
   const [copiado, setCopiado] = useState(false);
 
@@ -28,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
     } catch {
-      // Si falla el portapapeles, ignorar o mantener estado
+      onCopiarFallido?.();
     }
   };
 

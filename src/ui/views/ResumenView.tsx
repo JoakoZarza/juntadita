@@ -20,6 +20,7 @@ export interface ResumenViewProps {
   onReabrirJuntada: () => { ok: true } | { ok: false; error: string };
   onExportarJuntada: () => void;
   onImportarJuntada: (file: File) => Promise<{ ok: true } | { ok: false; error: string }>;
+  onCopiarFallido?: () => void;
 }
 
 export const ResumenView: React.FC<ResumenViewProps> = ({
@@ -28,6 +29,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
   onReabrirJuntada,
   onExportarJuntada,
   onImportarJuntada,
+  onCopiarFallido,
 }) => {
   const [copiado, setCopiado] = useState(false);
   const [modalCierreAbierto, setModalCierreAbierto] = useState(false);
@@ -86,6 +88,8 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
     if (exito) {
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
+    } else {
+      onCopiarFallido?.();
     }
   };
 
@@ -105,8 +109,11 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
     return { tipo: 'cero' as const, monto: 0 };
   };
 
-  // Promedio por cabeza
+  // El promedio por cabeza solo es real si todos participaron de todos los gastos
   const totalGeneral = liquidacion?.totales.total_general || 0;
+  const todosParticipanDeTodo = juntada.gastos.every((g) =>
+    juntada.personas.every((p) => g.participantes_ids.includes(p.id))
+  );
   const promedioPorCabeza =
     juntada.personas.length > 0 ? Math.round(totalGeneral / juntada.personas.length) : 0;
 
@@ -188,10 +195,16 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
               ${formatearMonto(totalGeneral)}
             </span>
             <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              Promedio por cabeza:{' '}
-              <strong style={{ color: 'var(--text-primary)' }} className="tabular-nums">
-                ${formatearMonto(promedioPorCabeza)}
-              </strong>
+              {todosParticipanDeTodo ? (
+                <>
+                  Promedio por cabeza:{' '}
+                  <strong style={{ color: 'var(--text-primary)' }} className="tabular-nums">
+                    ${formatearMonto(promedioPorCabeza)}
+                  </strong>
+                </>
+              ) : (
+                'Cada uno paga solo lo que consumió.'
+              )}
             </span>
           </div>
 

@@ -36,6 +36,7 @@ export interface DatosCrearGasto {
 export interface UseJuntadaReturn {
   juntada: Juntada | null;
   cargando: boolean;
+  errorGuardado: string | null;
   crearJuntada: (datos: DatosCrearJuntada) => void;
   agregarPersona: (apodo: string, alias_cobro?: string) => { ok: true } | { ok: false; error: string };
   eliminarPersona: (personaId: string) => { ok: true } | { ok: false; error: string };
@@ -56,6 +57,7 @@ export interface UseJuntadaReturn {
 export function useJuntada(): UseJuntadaReturn {
   const [juntada, setJuntada] = useState<Juntada | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
+  const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
 
   // Carga inicial desde localStorage
   useEffect(() => {
@@ -78,8 +80,12 @@ export function useJuntada(): UseJuntadaReturn {
     if (juntada) {
       try {
         guardarJuntada(juntada);
+        setErrorGuardado(null);
       } catch (err) {
         console.error('Error al persistir juntada en localStorage:', err);
+        setErrorGuardado(
+          err instanceof Error ? err.message : 'No se pudo guardar la juntada en este dispositivo.'
+        );
       }
     }
   }, [juntada, cargando]);
@@ -110,7 +116,6 @@ export function useJuntada(): UseJuntadaReturn {
     };
 
     setJuntada(nueva);
-    guardarJuntada(nueva);
   };
 
   const agregarPersona = (
@@ -355,7 +360,6 @@ export function useJuntada(): UseJuntadaReturn {
     try {
       const importada = await importarJuntadaDesdeJSON(file);
       setJuntada(importada);
-      guardarJuntada(importada);
       return { ok: true };
     } catch (err) {
       const errorMsg =
@@ -487,6 +491,7 @@ export function useJuntada(): UseJuntadaReturn {
   return {
     juntada,
     cargando,
+    errorGuardado,
     crearJuntada,
     agregarPersona,
     eliminarPersona,
