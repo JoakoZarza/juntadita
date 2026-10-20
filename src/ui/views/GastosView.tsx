@@ -10,6 +10,7 @@ export interface GastosViewProps {
   juntada: Juntada;
   onEliminarGasto: (gastoId: string) => { ok: true } | { ok: false; error: string };
   onCargarGasto?: () => void;
+  gastoResaltadoId?: string | null;
 }
 
 type FiltroCategoria = 'Todos' | CategoriaGasto;
@@ -18,6 +19,7 @@ export const GastosView: React.FC<GastosViewProps> = ({
   juntada,
   onEliminarGasto,
   onCargarGasto,
+  gastoResaltadoId,
 }) => {
   const [filtro, setFiltro] = useState<FiltroCategoria>('Todos');
   const [gastoABorrar, setGastoABorrar] = useState<Gasto | null>(null);
@@ -186,7 +188,10 @@ export const GastosView: React.FC<GastosViewProps> = ({
             const tituloGasto = gasto.descripcion?.trim() ? gasto.descripcion.trim() : gasto.categoria;
 
             return (
-              <div key={gasto.id} className="gasto-card">
+              <div
+                key={gasto.id}
+                className={`gasto-card ${gasto.id === gastoResaltadoId ? 'gasto-card-nuevo' : ''}`}
+              >
                 {/* Fila superior: Chip + hora a la izquierda, Botón Trash2 arriba a la derecha */}
                 <div
                   style={{

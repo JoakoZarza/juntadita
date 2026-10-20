@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, UserPlus, Users } from 'lucide-react';
+import { Lock, Trash2, UserPlus, Users } from 'lucide-react';
 import { puedeBorrarPersona } from '../../core/rules';
 import { Juntada } from '../../core/types';
 import { Button } from '../components/Button';
@@ -41,6 +41,8 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
     }
   };
 
+  const estaCerrada = juntada.estado === 'cerrada';
+
   const handleConfirmarBorrado = () => {
     if (!personaABorrar) return;
     onEliminarPersona(personaABorrar.id);
@@ -54,7 +56,28 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
         <span>Personas ({juntada.personas.length})</span>
       </div>
 
+      {/* Juntada cerrada: no se suman ni se quitan personas */}
+      {estaCerrada && (
+        <div
+          className="card"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: 'rgba(245, 166, 35, 0.1)',
+            borderColor: 'rgba(245, 166, 35, 0.3)',
+            color: 'var(--accent-amber)',
+            fontSize: '14px',
+            fontWeight: 600,
+          }}
+        >
+          <Lock size={18} />
+          <span>Juntada cerrada. Reabrila desde Resumen para sumar personas.</span>
+        </div>
+      )}
+
       {/* Formulario rápido para sumar comensal */}
+      {!estaCerrada && (
       <form onSubmit={handleSumar} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <Input
@@ -92,6 +115,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
           </div>
         </div>
       </form>
+      )}
 
       {/* Lista de comensales */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -207,7 +231,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
                 </div>
 
                 {/* Botón de eliminar */}
-                {!persona.es_organizador && (
+                {!persona.es_organizador && !estaCerrada && (
                   <button
                     onClick={() => {
                       if (validacionBorrado.ok) {

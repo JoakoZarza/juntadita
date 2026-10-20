@@ -47,6 +47,8 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
   );
 
   const [errorGlobal, setErrorGlobal] = useState<string | null>(null);
+  // Los faltantes se muestran en rojo recién después del primer intento de guardar
+  const [intentoGuardar, setIntentoGuardar] = useState(false);
 
   // Categorías disponibles
   const categorias: CategoriaGasto[] = ['Asado', 'Fútbol', 'Bebidas', 'Otros'];
@@ -114,25 +116,40 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
     setParticipantesSeleccionados([]);
   };
 
-  // Validación para habilitar el botón de guardar
-  const esValido =
-    totalCalculado > 0 &&
-    participantesSeleccionados.length > 0 &&
-    filasAportes.every((f) => {
+  // Personas que aparecen en más de una fila de aportes
+  const conteoAportantes = new Map<string, number>();
+  filasAportes.forEach((f) =>
+    conteoAportantes.set(f.persona_id, (conteoAportantes.get(f.persona_id) || 0) + 1)
+  );
+  const idsDuplicados = new Set(
+    [...conteoAportantes].filter(([, n]) => n > 1).map(([id]) => id)
+  );
+
+  // Lo que falta para poder guardar, en lenguaje del usuario
+  const faltantes: string[] = [];
+  if (totalCalculado === 0) {
+    faltantes.push('Cargá cuánto puso al menos una persona.');
+  } else if (
+    filasAportes.some((f) => {
       const m = parseInt(f.montoStr, 10);
-      return !isNaN(m) && m > 0 && f.persona_id !== '';
-    });
+      return isNaN(m) || m <= 0;
+    })
+  ) {
+    faltantes.push('Completá el monto de cada aportante o borrá la fila vacía.');
+  }
+  idsDuplicados.forEach((id) => {
+    const apodo = personas.find((p) => p.id === id)?.apodo || 'Alguien';
+    faltantes.push(`${apodo} aparece dos veces en "¿Quién puso plata?". Sumá los montos en una sola fila.`);
+  });
+  if (participantesSeleccionados.length === 0) {
+    faltantes.push('Elegí al menos un participante.');
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (totalCalculado <= 0) {
-      setErrorGlobal('Cargá al menos un aporte mayor a $0.');
-      return;
-    }
-
-    if (participantesSeleccionados.length === 0) {
-      setErrorGlobal('Seleccioná al menos un participante para este gasto.');
+    if (faltantes.length > 0) {
+      setIntentoGuardar(true);
       return;
     }
 
@@ -277,8 +294,13 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                 <select
                   value={fila.persona_id}
                   onChange={(e) => handleCambiarPersonaFila(fila.id, e.target.value)}
+                  aria-label="Quién puso plata"
+                  aria-invalid={idsDuplicados.has(fila.persona_id)}
                   style={{
                     flex: '1.4',
+                    borderColor: idsDuplicados.has(fila.persona_id)
+                      ? 'var(--accent-danger)'
+                      : undefined,
                     minHeight: '44px',
                     padding: '8px 10px',
                     fontSize: '14px',
@@ -299,6 +321,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                     inputMode="numeric"
                     autoFocus={index === 0}
                     placeholder="Monto $"
+                    aria-label="Monto aportado"
                     value={fila.montoStr}
                     onChange={(e) => handleCambiarMontoFila(fila.id, e.target.value)}
                     style={{
@@ -336,6 +359,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
               <button
                 type="button"
                 onClick={handleAgregarAportante}
+                disabled={filasAportes.length >= personas.length}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -348,7 +372,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                 }}
               >
                 <Plus size={16} strokeWidth={2.5} />
-                <span>+ Agregar aportante</span>
+                <span>Agregar aportante</span>
               </button>
 
               {totalCalculado === 0 && (
@@ -488,16 +512,22 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
           </div>
         )}
 
-        {/* Botón Guardar Gasto */}
+        {/* Botón Guardar Gasto: siempre habilitado, explica qué falta */}
         <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            disabled={!esValido}
-          >
+          <Button type="submit" variant="primary" fullWidth>
             Guardar gasto
           </Button>
+
+          {faltantes.length > 0 && (
+            <ul
+              className={`faltantes ${intentoGuardar ? 'faltantes-error' : ''}`}
+              role={intentoGuardar ? 'alert' : undefined}
+            >
+              {faltantes.map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          )}
         </div>
       </form>
     </div>

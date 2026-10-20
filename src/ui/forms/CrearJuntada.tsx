@@ -78,15 +78,37 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
       }}
     >
       <div style={{ marginBottom: '28px' }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: 'rgba(224, 86, 56, 0.12)',
+            color: 'var(--accent-coral)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px',
+          }}
+        >
+          <Flame size={26} />
+        </div>
         <h1
           className="font-title"
           style={{ fontSize: '28px', color: 'var(--text-primary)', marginBottom: '8px' }}
         >
-          Nueva juntada
+          Dividí los gastos de la juntada
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
-          Cargá los datos y compartí el alias al final.
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '16px' }}>
+          Anotá quién puso plata, Juntadita calcula quién le debe a quién y te arma el mensaje
+          para el grupo.
         </p>
+        <ol className="onboarding-pasos">
+          <li>Creá la juntada con tu alias de cobro.</li>
+          <li>Sumá a los que vinieron y cargá los gastos.</li>
+          <li>Copiá el resumen y mandalo por WhatsApp.</li>
+        </ol>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

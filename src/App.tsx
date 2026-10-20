@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { registerSW } from 'virtual:pwa-register';
 import { useJuntada } from './hooks/useJuntada';
+import { useToast } from './hooks/useToast';
 import { Button } from './ui/components/Button';
 import { FAB } from './ui/components/FAB';
 import { Header } from './ui/components/Header';
 import { InstallPrompt } from './ui/components/InstallPrompt';
 import { Modal } from './ui/components/Modal';
 import { TabBar, TabId } from './ui/components/TabBar';
+import { Toast } from './ui/components/Toast';
 import { CargarGasto } from './ui/forms/CargarGasto';
 import { CrearJuntada } from './ui/forms/CrearJuntada';
 import { FutbolModulo } from './ui/modules/FutbolModulo';
@@ -40,6 +42,15 @@ export const App: React.FC = () => {
   const [modalNuevaAbierto, setModalNuevaAbierto] = useState(false);
   const [modalCargarGastoAbierto, setModalCargarGastoAbierto] = useState(false);
   const [moduloAbierto, setModuloAbierto] = useState<'futbol' | 'truco' | null>(null);
+  const [gastoResaltadoId, setGastoResaltadoId] = useState<string | null>(null);
+  const { toast, mostrarToast } = useToast();
+
+  // El resaltado del gasto recién cargado dura lo mismo que su animación
+  useEffect(() => {
+    if (!gastoResaltadoId) return;
+    const t = setTimeout(() => setGastoResaltadoId(null), 1600);
+    return () => clearTimeout(t);
+  }, [gastoResaltadoId]);
 
   // Registro PWA y detección de versión nueva
   const [hayNuevaVersion, setHayNuevaVersion] = useState(false);
@@ -79,9 +90,26 @@ export const App: React.FC = () => {
       <div className="app-container">
         <CrearJuntada onSubmit={crearJuntada} onImportar={importarJuntada} />
         <InstallPrompt />
+        <Toast toast={toast} />
       </div>
     );
   }
+
+  // Envuelve una acción que devuelve {ok, error} para confirmar o avisar con un toast
+  const conToast =
+    <A extends unknown[], R extends { ok: true } | { ok: false; error: string }>(
+      accion: (...args: A) => R,
+      mensajeExito: string | ((...args: A) => string)
+    ) =>
+    (...args: A): R => {
+      const res = accion(...args);
+      if (res.ok) {
+        mostrarToast(typeof mensajeExito === 'function' ? mensajeExito(...args) : mensajeExito);
+      } else {
+        mostrarToast(res.error, 'error');
+      }
+      return res;
+    };
 
   const handleConfirmarNueva = () => {
     nuevaJuntada();
@@ -120,8 +148,13 @@ export const App: React.FC = () => {
         {activeTab === 'personas' && (
           <PersonasView
             juntada={juntada}
-            onAgregarPersona={agregarPersona}
-            onEliminarPersona={eliminarPersona}
+            onAgregarPersona={(apodo, alias) => {
+              // Los errores de validación ya se muestran debajo del input
+              const res = agregarPersona(apodo, alias);
+              if (res.ok) mostrarToast(`${apodo.trim()} se sumó`);
+              return res;
+            }}
+            onEliminarPersona={conToast(eliminarPersona, 'Persona eliminada')}
             onActualizarAliasPersona={actualizarAliasPersona}
           />
         )}
@@ -129,7 +162,8 @@ export const App: React.FC = () => {
         {activeTab === 'gastos' && (
           <GastosView
             juntada={juntada}
-            onEliminarGasto={eliminarGasto}
+            onEliminarGasto={conToast(eliminarGasto, 'Gasto borrado')}
+            gastoResaltadoId={gastoResaltadoId}
             onCargarGasto={() => setModalCargarGastoAbierto(true)}
           />
         )}
@@ -137,10 +171,17 @@ export const App: React.FC = () => {
         {activeTab === 'resumen' && (
           <ResumenView
             juntada={juntada}
-            onCerrarJuntada={cerrarJuntada}
-            onReabrirJuntada={reabrirJuntada}
-            onExportarJuntada={exportarJuntada}
-            onImportarJuntada={importarJuntada}
+            onCerrarJuntada={conToast(cerrarJuntada, 'Juntada cerrada. Cuentas congeladas.')}
+            onReabrirJuntada={conToast(reabrirJuntada, 'Juntada reabierta')}
+            onExportarJuntada={() => {
+              exportarJuntada();
+              mostrarToast('Backup descargado');
+            }}
+            onImportarJuntada={async (file) => {
+              const res = await importarJuntada(file);
+              if (res.ok) mostrarToast('Backup importado');
+              return res;
+            }}
           />
         )}
       </main>
@@ -169,6 +210,9 @@ export const App: React.FC = () => {
             const res = agregarGasto(datos);
             if (res.ok) {
               setModalCargarGastoAbierto(false);
+              setActiveTab('gastos');
+              setGastoResaltadoId(res.id);
+              mostrarToast('Gasto guardado');
             }
             return res;
           }}
@@ -265,6 +309,9 @@ export const App: React.FC = () => {
 
       {/* Banner de instalación guiada de PWA */}
       <InstallPrompt />
+
+      {/* Confirmaciones de acciones */}
+      <Toast toast={toast} />
     </div>
   );
 };

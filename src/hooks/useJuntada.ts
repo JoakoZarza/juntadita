@@ -40,7 +40,7 @@ export interface UseJuntadaReturn {
   agregarPersona: (apodo: string, alias_cobro?: string) => { ok: true } | { ok: false; error: string };
   eliminarPersona: (personaId: string) => { ok: true } | { ok: false; error: string };
   actualizarAliasPersona: (personaId: string, alias: string) => void;
-  agregarGasto: (datos: DatosCrearGasto) => { ok: true } | { ok: false; error: string };
+  agregarGasto: (datos: DatosCrearGasto) => { ok: true; id: string } | { ok: false; error: string };
   eliminarGasto: (gastoId: string) => { ok: true } | { ok: false; error: string };
   cerrarJuntada: () => { ok: true } | { ok: false; error: string };
   reabrirJuntada: () => { ok: true } | { ok: false; error: string };
@@ -121,6 +121,10 @@ export function useJuntada(): UseJuntadaReturn {
       return { ok: false, error: 'No hay ninguna juntada activa.' };
     }
 
+    if (juntada.estado === 'cerrada') {
+      return { ok: false, error: 'La juntada está cerrada. Reabrila para sumar personas.' };
+    }
+
     const apodoLimpio = apodo.trim();
     if (!apodoLimpio) {
       return { ok: false, error: 'Ingresá un apodo para sumar a la persona.' };
@@ -177,6 +181,10 @@ export function useJuntada(): UseJuntadaReturn {
       return { ok: false, error: 'No hay ninguna juntada activa.' };
     }
 
+    if (juntada.estado === 'cerrada') {
+      return { ok: false, error: 'La juntada está cerrada. Reabrila para quitar personas.' };
+    }
+
     const validacion = puedeBorrarPersona(juntada, personaId);
     if (!validacion.ok) {
       return { ok: false, error: validacion.motivo || 'No se puede eliminar la persona.' };
@@ -193,7 +201,7 @@ export function useJuntada(): UseJuntadaReturn {
 
   const agregarGasto = (
     datos: DatosCrearGasto
-  ): { ok: true } | { ok: false; error: string } => {
+  ): { ok: true; id: string } | { ok: false; error: string } => {
     if (!juntada) {
       return { ok: false, error: 'No hay ninguna juntada activa.' };
     }
@@ -223,6 +231,14 @@ export function useJuntada(): UseJuntadaReturn {
           error: 'Uno de los aportantes no pertenece a la juntada.',
         };
       }
+    }
+
+    const aportantesUnicos = new Set(datos.aportes.map((a) => a.persona_id));
+    if (aportantesUnicos.size !== datos.aportes.length) {
+      return {
+        ok: false,
+        error: 'Una persona aparece dos veces en los aportes. Sumá sus montos en una sola fila.',
+      };
     }
 
     const sumaAportes = datos.aportes.reduce((acc, a) => acc + a.monto, 0);
@@ -266,7 +282,7 @@ export function useJuntada(): UseJuntadaReturn {
       updated_at: nowIso,
     });
 
-    return { ok: true };
+    return { ok: true, id: nuevoGasto.id };
   };
 
   const eliminarGasto = (
