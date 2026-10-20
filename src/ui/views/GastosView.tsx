@@ -4,7 +4,6 @@ import { formatearMonto } from '../../core/whatsapp';
 import { CategoriaGasto, Gasto, Juntada } from '../../core/types';
 import { Button } from '../components/Button';
 import { Chip } from '../components/Chip';
-import { Modal } from '../components/Modal';
 
 export interface GastosViewProps {
   juntada: Juntada;
@@ -22,9 +21,14 @@ export const GastosView: React.FC<GastosViewProps> = ({
   gastoResaltadoId,
 }) => {
   const [filtro, setFiltro] = useState<FiltroCategoria>('Todos');
-  const [gastoABorrar, setGastoABorrar] = useState<Gasto | null>(null);
 
-  const categoriasFiltro: FiltroCategoria[] = ['Todos', 'Asado', 'Fútbol', 'Bebidas', 'Otros'];
+  // Solo las categorías de la juntada (o que ya tienen gastos cargados)
+  const categoriasFiltro: FiltroCategoria[] = [
+    'Todos',
+    ...(['Asado', 'Fútbol', 'Bebidas', 'Otros'] as CategoriaGasto[]).filter(
+      (cat) => juntada.actividades.includes(cat) || juntada.gastos.some((g) => g.categoria === cat)
+    ),
+  ];
 
   // Gastos filtrados
   const gastosFiltrados = juntada.gastos.filter((g) =>
@@ -67,12 +71,6 @@ export const GastosView: React.FC<GastosViewProps> = ({
     }
   };
 
-  const handleConfirmarBorrado = () => {
-    if (!gastoABorrar) return;
-    onEliminarGasto(gastoABorrar.id);
-    setGastoABorrar(null);
-  };
-
   const totalGastadoFiltrado = gastosFiltrados.reduce((sum, g) => sum + g.monto_total, 0);
 
   return (
@@ -113,20 +111,22 @@ export const GastosView: React.FC<GastosViewProps> = ({
       {/* Lista de gastos / Estado vacío */}
       {gastosFiltrados.length === 0 ? (
         <div className="card card-vacia card-vacia-lg">
-          {juntada.estado === 'cerrada' ? (
+          <Wallet size={40} color="var(--text-muted)" strokeWidth={1.5} />
+          {filtro !== 'Todos' ? (
             <>
-              <Lock size={40} color="var(--accent-amber)" strokeWidth={1.5} />
-              <p className="text-base c-amber">Juntada cerrada. Cuentas congeladas.</p>
+              <p className="text-base">No hay gastos de {filtro} todavía.</p>
+              <Button variant="secondary" size="sm" onClick={() => setFiltro('Todos')}>
+                Ver todos los gastos
+              </Button>
             </>
+          ) : juntada.estado === 'cerrada' ? (
+            <p className="text-base">No se cargaron gastos en esta juntada.</p>
           ) : (
             <>
-              <Wallet size={40} color="var(--text-muted)" strokeWidth={1.5} />
               <p className="text-base">
-                {filtro === 'Todos'
-                  ? 'Todavía no hay gastos cargados. Tocá el botón + para sumar el primero.'
-                  : `No hay gastos registrados en la categoría ${filtro}.`}
+                Todavía no hay gastos cargados. Tocá el botón + para sumar el primero.
               </p>
-              {filtro === 'Todos' && onCargarGasto && (
+              {onCargarGasto && (
                 <Button variant="primary" onClick={onCargarGasto} className="mt-8">
                   Cargar primer gasto
                 </Button>
@@ -164,9 +164,9 @@ export const GastosView: React.FC<GastosViewProps> = ({
                       size="sm"
                       iconOnly
                       icon={<Trash2 size={16} />}
-                      onClick={() => setGastoABorrar(gasto)}
+                      onClick={() => onEliminarGasto(gasto.id)}
                       title="Borrar gasto"
-                      aria-label="Borrar gasto"
+                      aria-label={`Borrar gasto ${tituloGasto}`}
                     />
                   )}
                 </div>
@@ -186,10 +186,13 @@ export const GastosView: React.FC<GastosViewProps> = ({
                     {formatTextoAportantes(gasto)}
                   </span>
 
-                  <div className="gasto-participantes">
-                    <Users size={13} />
+                  <div
+                    className="gasto-participantes"
+                    title={`Participan ${gasto.participantes_ids.length} de ${juntada.personas.length} personas`}
+                  >
+                    <Users size={13} aria-hidden="true" />
                     <span className="tabular-nums">
-                      {gasto.participantes_ids.length}/{juntada.personas.length} pers
+                      {gasto.participantes_ids.length} de {juntada.personas.length}
                     </span>
                   </div>
                 </div>
@@ -198,25 +201,6 @@ export const GastosView: React.FC<GastosViewProps> = ({
           })}
         </div>
       )}
-
-      {/* Modal de confirmación para eliminar gasto */}
-      <Modal
-        isOpen={gastoABorrar !== null}
-        onClose={() => setGastoABorrar(null)}
-        title="Borrar gasto"
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setGastoABorrar(null)}>
-              Cancelar
-            </Button>
-            <Button variant="danger" onClick={handleConfirmarBorrado}>
-              Borrar
-            </Button>
-          </>
-        }
-      >
-        ¿Borrar este gasto? Se va a recalcular todo.
-      </Modal>
     </div>
   );
 };

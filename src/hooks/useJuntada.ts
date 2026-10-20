@@ -38,11 +38,12 @@ export interface UseJuntadaReturn {
   cargando: boolean;
   errorGuardado: string | null;
   crearJuntada: (datos: DatosCrearJuntada) => void;
-  agregarPersona: (apodo: string, alias_cobro?: string) => { ok: true } | { ok: false; error: string };
+  agregarPersona: (apodo: string, alias_cobro?: string) => { ok: true; id: string } | { ok: false; error: string };
   eliminarPersona: (personaId: string) => { ok: true } | { ok: false; error: string };
   actualizarAliasPersona: (personaId: string, alias: string) => void;
   agregarGasto: (datos: DatosCrearGasto) => { ok: true; id: string } | { ok: false; error: string };
   eliminarGasto: (gastoId: string) => { ok: true } | { ok: false; error: string };
+  restaurarGasto: (gasto: Gasto, indice: number) => void;
   cerrarJuntada: () => { ok: true } | { ok: false; error: string };
   reabrirJuntada: () => { ok: true } | { ok: false; error: string };
   exportarJuntada: () => void;
@@ -121,7 +122,7 @@ export function useJuntada(): UseJuntadaReturn {
   const agregarPersona = (
     apodo: string,
     alias_cobro?: string
-  ): { ok: true } | { ok: false; error: string } => {
+  ): { ok: true; id: string } | { ok: false; error: string } => {
     if (!juntada) {
       return { ok: false, error: 'No hay ninguna juntada activa.' };
     }
@@ -166,7 +167,7 @@ export function useJuntada(): UseJuntadaReturn {
       updated_at: new Date().toISOString(),
     });
 
-    return { ok: true };
+    return { ok: true, id: nuevaPersona.id };
   };
 
   const actualizarAliasPersona = (personaId: string, alias: string) => {
@@ -311,6 +312,23 @@ export function useJuntada(): UseJuntadaReturn {
     return { ok: true };
   };
 
+  // Deshacer un borrado: vuelve a poner el gasto en la misma posición de la lista
+  // Usa el estado actual (no el del render en que se borró): se llama segundos después
+  const restaurarGasto = (gasto: Gasto, indice: number) => {
+    setJuntada((actual) => {
+      if (!actual || actual.estado === 'cerrada') return actual;
+      if (actual.gastos.some((g) => g.id === gasto.id)) return actual;
+
+      const gastos = [...actual.gastos];
+      gastos.splice(Math.min(Math.max(indice, 0), gastos.length), 0, gasto);
+      return {
+        ...actual,
+        gastos,
+        updated_at: new Date().toISOString(),
+      };
+    });
+  };
+
   const cerrarJuntada = (): { ok: true } | { ok: false; error: string } => {
     if (!juntada) {
       return { ok: false, error: 'No hay ninguna juntada activa.' };
@@ -362,9 +380,15 @@ export function useJuntada(): UseJuntadaReturn {
       setJuntada(importada);
       return { ok: true };
     } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : 'Error desconocido al importar el archivo.';
-      return { ok: false, error: errorMsg };
+      // Los detalles de validación del esquema no le sirven al usuario
+      console.error('Error al importar backup:', err);
+      const noSePudoLeer = err instanceof Error && err.message.startsWith('No se pudo leer');
+      return {
+        ok: false,
+        error: noSePudoLeer
+          ? 'No se pudo leer el archivo. Probá elegirlo de nuevo.'
+          : 'Ese archivo no es un backup de Juntadita o está dañado.',
+      };
     }
   };
 
@@ -498,6 +522,7 @@ export function useJuntada(): UseJuntadaReturn {
     actualizarAliasPersona,
     agregarGasto,
     eliminarGasto,
+    restaurarGasto,
     cerrarJuntada,
     reabrirJuntada,
     exportarJuntada,

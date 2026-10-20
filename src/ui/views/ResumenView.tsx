@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   Check,
+  CircleCheckBig,
   Copy,
   Download,
   Lock,
@@ -21,6 +22,7 @@ export interface ResumenViewProps {
   onExportarJuntada: () => void;
   onImportarJuntada: (file: File) => Promise<{ ok: true } | { ok: false; error: string }>;
   onCopiarFallido?: () => void;
+  onCargarGasto?: () => void;
 }
 
 export const ResumenView: React.FC<ResumenViewProps> = ({
@@ -30,6 +32,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
   onExportarJuntada,
   onImportarJuntada,
   onCopiarFallido,
+  onCargarGasto,
 }) => {
   const [copiado, setCopiado] = useState(false);
   const [modalCierreAbierto, setModalCierreAbierto] = useState(false);
@@ -37,6 +40,9 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
   const [modalImportAbierto, setModalImportAbierto] = useState(false);
   const [archivoAImportar, setArchivoAImportar] = useState<File | null>(null);
   const [errorImport, setErrorImport] = useState<string | null>(null);
+  const [importando, setImportando] = useState(false);
+  // Muestra el cierre como un momento propio, con el siguiente paso a mano
+  const [recienCerrada, setRecienCerrada] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -135,7 +141,9 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
       onExportarJuntada();
     }
 
+    setImportando(true);
     const res = await onImportarJuntada(archivoAImportar);
+    setImportando(false);
     if (res.ok) {
       setModalImportAbierto(false);
       setArchivoAImportar(null);
@@ -169,6 +177,48 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Momento de cierre: confirma y propone mandar el resumen */}
+      {recienCerrada && juntada.estado === 'cerrada' && (
+        <div className="card cierre-card" role="status">
+          <CircleCheckBig size={40} className="cierre-check" />
+          <div className="stack gap-4">
+            <span className="font-title text-lg c-primary">¡Cuentas cerradas!</span>
+            <span className="text-sm c-secondary">
+              {hayGastos
+                ? 'Copiá el mensaje y mandalo al grupo para que cada uno transfiera.'
+                : 'No quedó nada por repartir.'}
+            </span>
+          </div>
+          {hayGastos && (
+            <Button
+              variant="primary"
+              fullWidth
+              icon={copiado ? <Check size={18} /> : <Copy size={18} />}
+              onClick={handleCopiarMensaje}
+              className={copiado ? 'btn-exito' : ''}
+            >
+              {copiado ? 'Copiado' : 'Copiar mensaje para el grupo'}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Sin gastos: un único estado vacío con el siguiente paso */}
+      {!hayGastos && (
+        <div className="card card-vacia card-vacia-lg">
+          <PieChart size={40} color="var(--text-muted)" strokeWidth={1.5} />
+          <p className="text-base">
+            Todavía no hay cuentas para hacer. Cuando cargues gastos, acá vas a ver quién le debe a
+            quién.
+          </p>
+          {juntada.estado === 'abierta' && onCargarGasto && (
+            <Button variant="primary" onClick={onCargarGasto} className="mt-8">
+              Cargar primer gasto
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* SECCIÓN 2: Card de total general (destacado con gradiente) */}
       {hayGastos && (
@@ -270,7 +320,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
                       )}
                     </div>
 
-                    <span className="monto text-lg c-coral">${formatearMonto(t.monto)}</span>
+                    <span className="monto text-lg c-deuda">${formatearMonto(t.monto)}</span>
                   </div>
                 );
               })}
@@ -280,6 +330,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
       )}
 
       {/* SECCIÓN 5: Balances individuales */}
+      {hayGastos && (
       <div className="stack gap-10">
         <span className="section-label">Balances individuales</span>
 
@@ -294,7 +345,7 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
               claseBalance = 'c-emerald';
               textoMonto = `+$${formatearMonto(balance.monto)}`;
             } else if (balance.tipo === 'deudor') {
-              claseBalance = 'c-coral';
+              claseBalance = 'c-deuda';
               textoMonto = `-$${formatearMonto(balance.monto)}`;
             }
 
@@ -318,9 +369,10 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           })}
         </div>
       </div>
+      )}
 
       {/* SECCIÓN 6: Mensaje final para WhatsApp */}
-      {hayGastos ? (
+      {hayGastos && (
         <div className="stack gap-12">
           <span className="section-label">Mensaje para el grupo</span>
 
@@ -335,10 +387,6 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           >
             {copiado ? 'Copiado' : 'Copiar mensaje'}
           </Button>
-        </div>
-      ) : (
-        <div className="card card-vacia">
-          <span className="text-sm">Cargá gastos para ver la liquidación</span>
         </div>
       )}
 
@@ -408,8 +456,12 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
             <Button
               variant="primary"
               onClick={() => {
-                onCerrarJuntada();
+                const res = onCerrarJuntada();
                 setModalCierreAbierto(false);
+                if (res.ok) {
+                  setRecienCerrada(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
             >
               Cerrar
@@ -456,28 +508,35 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           setArchivoAImportar(null);
         }}
         title="Importar backup"
+        apilarAcciones
         actions={
           <>
             <Button
-              variant="secondary"
+              variant="primary"
+              fullWidth
+              disabled={importando}
+              onClick={() => ejecutarImportacion(true)}
+            >
+              {importando ? 'Importando…' : 'Exportar actual y seguir'}
+            </Button>
+            <Button
+              variant="danger"
+              fullWidth
+              disabled={importando}
+              onClick={() => ejecutarImportacion(false)}
+            >
+              Reemplazar sin exportar
+            </Button>
+            <Button
+              variant="ghost"
+              fullWidth
+              disabled={importando}
               onClick={() => {
                 setModalImportAbierto(false);
                 setArchivoAImportar(null);
               }}
             >
               Cancelar
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => ejecutarImportacion(true)}
-            >
-              Exportar actual y seguir
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => ejecutarImportacion(false)}
-            >
-              Reemplazar sin exportar
             </Button>
           </>
         }

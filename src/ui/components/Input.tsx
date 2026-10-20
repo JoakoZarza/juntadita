@@ -4,12 +4,17 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string;
   error?: string;
   prefixText?: string;
+  /** Etiqueta solo para lectores de pantalla, cuando no hay label visible */
+  labelOculto?: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 export const Input: React.FC<InputProps> = ({
   label,
   error,
   prefixText,
+  labelOculto,
+  ref,
   id,
   className = '',
   ...props
@@ -31,7 +36,14 @@ export const Input: React.FC<InputProps> = ({
       <div className="field-control">
         {prefixText && <span className="field-prefix">{prefixText}</span>}
 
-        <input id={inputId} className={clases} {...props} />
+        <input
+          ref={ref}
+          id={inputId}
+          className={clases}
+          aria-label={label ? undefined : labelOculto}
+          aria-invalid={error ? true : undefined}
+          {...props}
+        />
       </div>
 
       {error && <span className="field-error">{error}</span>}

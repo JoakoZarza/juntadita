@@ -18,6 +18,9 @@
   --accent-danger-bg: rgba(239, 68, 68, 0.12);
   --accent-danger-border: rgba(239, 68, 68, 0.3);
 
+  /* Deuda: distinto del coral de marca para no confundir "acción" con "debés" */
+  --accent-deuda: #F87171;
+
   /* Texto sobre fondos de acento (coral, azul) */
   --text-on-accent: #FFFFFF;
 
@@ -116,6 +119,7 @@ html, body {
 .c-muted { color: var(--text-muted); }
 .c-on-accent { color: var(--text-on-accent); }
 .c-coral { color: var(--accent-coral); }
+.c-deuda { color: var(--accent-deuda); }
 .c-amber { color: var(--accent-amber); }
 .c-emerald { color: var(--accent-emerald); }
 .c-blue { color: var(--accent-blue); }
@@ -1010,9 +1014,10 @@ select option {
 
 /* Header de pantallas completas (carga de gasto, módulos) */
 .subpage-header {
-  display: flex;
+  /* Tres columnas: el título queda centrado aunque el botón izquierdo sea más ancho */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   min-height: 60px;
   padding: 12px 16px;
   background-color: var(--bg-surface);
@@ -1180,6 +1185,11 @@ select option {
   padding-top: 8px;
 }
 
+.modal-actions-apiladas {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 /* Banners flotantes (actualización e instalación de la PWA) */
 .banner-flotante {
   position: fixed;
@@ -1268,9 +1278,29 @@ select option {
 .app-cargando {
   align-items: center;
   justify-content: center;
+  gap: 12px;
+}
+
+.splash-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background-color: var(--accent-coral-soft);
+  color: var(--accent-coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: splash-pulso 1.2s ease-in-out infinite;
+}
+
+.splash-nombre {
+  font-size: var(--text-lg);
   color: var(--text-secondary);
-  font-family: var(--font-title);
-  font-size: var(--text-base);
+}
+
+@keyframes splash-pulso {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(0.94); opacity: 0.75; }
 }
 
 /* Avatar */
@@ -1300,13 +1330,6 @@ select option {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-}
-
-.input-alias-nuevo {
-  flex: 1;
-  min-height: 44px;
-  padding: 10px 12px;
-  font-size: var(--text-xs);
 }
 
 .input-alias-inline {
@@ -1716,4 +1739,167 @@ select option {
   color: var(--accent-danger);
   font-size: var(--text-sm);
   font-weight: 500;
+}
+
+/* Transiciones de pantalla: cambio de tab y pantallas completas */
+.content-scroll > * {
+  animation: aparecer 180ms ease-out;
+}
+
+.fullscreen-form {
+  animation: subir 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-logo,
+  .content-scroll > *,
+  .fullscreen-form {
+    animation: none;
+  }
+}
+
+/* Acción dentro del toast ("Deshacer") */
+.toast {
+  pointer-events: auto;
+}
+
+.toast-accion {
+  margin-left: 4px;
+  padding: 6px 10px;
+  min-height: 32px;
+  border-radius: var(--radius-full);
+  color: var(--accent-coral);
+  font-family: var(--font-title);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+/* Cabecera de pantalla completa: el botón izquierdo pegado a la izquierda */
+.subpage-header > :first-child { justify-self: start; }
+
+/* Área táctil mínima de 44px sin agrandar el ícono */
+.btn-icon-only,
+.alias-copiar {
+  position: relative;
+}
+
+.btn-sm.btn-icon-only::after,
+.alias-copiar::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.alias-copiar::after {
+  inset: -9px;
+}
+
+/* Hover consistente en todos los botones (solo con mouse) */
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-coral-hover);
+    border-color: var(--accent-coral-hover);
+  }
+
+  .btn-secondary:hover:not(:disabled),
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--overlay-subtle);
+    color: var(--text-primary);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    border-color: var(--accent-danger);
+  }
+
+  .btn-link:hover:not(:disabled) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .alias-copiar:hover {
+    color: var(--text-primary);
+  }
+}
+
+/* Participantes: ahora son botones (checkbox accesible) */
+button.fila-participante {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+/* Aviso informativo (siguiente paso sugerido) */
+.aviso-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.aviso-info svg {
+  flex-shrink: 0;
+  color: var(--accent-coral);
+}
+
+/* Persona: motivo por el que no se puede quitar y entrada animada */
+.persona-motivo {
+  font-size: var(--text-xs);
+  color: var(--accent-amber);
+}
+
+.btn.is-bloqueado {
+  color: var(--text-muted);
+}
+
+.persona-card-nueva {
+  animation: persona-nueva 1.6s ease-out;
+}
+
+@keyframes persona-nueva {
+  0%   { border-color: var(--accent-emerald); box-shadow: 0 0 0 3px var(--accent-emerald-soft); transform: translateY(-6px); opacity: 0; }
+  15%  { transform: translateY(0); opacity: 1; }
+  100% { border-color: var(--border-subtle); box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Momento de cierre de la juntada */
+.cierre-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  border-color: var(--accent-emerald-border);
+  background-color: var(--accent-emerald-soft);
+  animation: aparecer 240ms ease-out;
+}
+
+.cierre-check {
+  color: var(--accent-emerald);
+  animation: cierre-check 520ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+@keyframes cierre-check {
+  from { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .persona-card-nueva,
+  .cierre-card,
+  .cierre-check {
+    animation: none;
+  }
 }

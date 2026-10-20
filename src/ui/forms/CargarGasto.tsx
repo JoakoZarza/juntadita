@@ -5,6 +5,10 @@ import { CategoriaGasto, GastoAporte, Persona } from '../../core/types';
 import { Button } from '../components/Button';
 import { Chip } from '../components/Chip';
 import { Input } from '../components/Input';
+import { Modal } from '../components/Modal';
+
+// Hasta $999.999.999: evita montos absurdos que rompen el layout o pierden precisión
+const MAX_DIGITOS_MONTO = 9;
 
 export interface CargarGastoProps {
   personas: Persona[];
@@ -49,6 +53,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
   const [errorGlobal, setErrorGlobal] = useState<string | null>(null);
   // Los faltantes se muestran en rojo recién después del primer intento de guardar
   const [intentoGuardar, setIntentoGuardar] = useState(false);
+  const [confirmarDescarte, setConfirmarDescarte] = useState(false);
 
   // Categorías disponibles
   const categorias: CategoriaGasto[] = ['Asado', 'Fútbol', 'Bebidas', 'Otros'];
@@ -88,8 +93,8 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
   };
 
   const handleCambiarMontoFila = (idFila: string, valor: string) => {
-    // Permitir solo dígitos numéricos
-    const limpio = valor.replace(/\D/g, '');
+    // Solo dígitos (los puntos de miles se agregan al mostrar), sin ceros a la izquierda
+    const limpio = valor.replace(/\D/g, '').replace(/^0+/, '').slice(0, MAX_DIGITOS_MONTO);
     setFilasAportes(
       filasAportes.map((f) => (f.id === idFila ? { ...f, montoStr: limpio } : f))
     );
@@ -106,6 +111,18 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
       setParticipantesSeleccionados([...participantesSeleccionados, personaId]);
     }
     if (errorGlobal) setErrorGlobal(null);
+  };
+
+  // Si ya cargó algo, no descartarlo sin preguntar
+  const formularioSucio =
+    descripcion.trim() !== '' || filasAportes.some((f) => f.montoStr !== '');
+
+  const handleCancelar = () => {
+    if (formularioSucio) {
+      setConfirmarDescarte(true);
+    } else {
+      onCancelar();
+    }
   };
 
   const seleccionarTodos = () => {
@@ -180,7 +197,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
           variant="ghost"
           size="sm"
           icon={<ChevronLeft size={20} />}
-          onClick={onCancelar}
+          onClick={handleCancelar}
           aria-label="Cancelar carga de gasto"
         >
           Cancelar
@@ -195,8 +212,10 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
       <form onSubmit={handleSubmit} className="subpage-body form-gasto">
         {/* Paso 1: Selección de categoría */}
         <div>
-          <label className="field-label mb-10">Categoría</label>
-          <div className="chips-scroll">
+          <p id="label-categoria" className="field-label mb-10">
+            Categoría
+          </p>
+          <div className="chips-scroll" role="group" aria-labelledby="label-categoria">
             {categorias.map((cat) => (
               <Chip
                 key={cat}
@@ -242,7 +261,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                 >
                   {personas.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.apodo} {p.es_organizador ? '(Org)' : ''}
+                      {p.apodo} {p.es_organizador ? '(organizador)' : ''}
                     </option>
                   ))}
                 </select>
@@ -255,7 +274,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                     autoFocus={index === 0}
                     placeholder="Monto $"
                     aria-label="Monto aportado"
-                    value={fila.montoStr}
+                    value={fila.montoStr ? formatearMonto(parseInt(fila.montoStr, 10)) : ''}
                     onChange={(e) => handleCambiarMontoFila(fila.id, e.target.value)}
                   />
                 </div>
@@ -313,25 +332,30 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
             </div>
           </div>
 
-          <div className="stack gap-8">
+          <div className="stack gap-8" role="group" aria-label="Participantes del gasto">
             {personas.map((persona) => {
               const isChecked = participantesSeleccionados.includes(persona.id);
               return (
-                <div
+                <button
+                  type="button"
                   key={persona.id}
+                  role="checkbox"
+                  aria-checked={isChecked}
                   onClick={() => toggleParticipante(persona.id)}
                   className={`fila-participante ${isChecked ? 'is-checked' : ''}`}
                 >
-                  <div className="row gap-10">
-                    <div className="check-box">
+                  <span className="row gap-10">
+                    <span className="check-box" aria-hidden="true">
                       {isChecked && <Check size={14} strokeWidth={3} />}
-                    </div>
+                    </span>
 
                     <span className="fila-participante-nombre">{persona.apodo}</span>
-                  </div>
+                  </span>
 
-                  {persona.es_organizador && <span className="badge-organizador">Org</span>}
-                </div>
+                  {persona.es_organizador && (
+                    <span className="badge-organizador">Organizador</span>
+                  )}
+                </button>
               );
             })}
           </div>
@@ -361,6 +385,25 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
           )}
         </div>
       </form>
+
+      {/* Confirmación antes de descartar lo cargado */}
+      <Modal
+        isOpen={confirmarDescarte}
+        onClose={() => setConfirmarDescarte(false)}
+        title="¿Descartar este gasto?"
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setConfirmarDescarte(false)}>
+              Seguir cargando
+            </Button>
+            <Button variant="danger" onClick={onCancelar}>
+              Descartar
+            </Button>
+          </>
+        }
+      >
+        Lo que cargaste hasta ahora se va a perder.
+      </Modal>
     </div>
   );
 };

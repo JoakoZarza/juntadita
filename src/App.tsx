@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Flame } from 'lucide-react';
 import { registerSW } from 'virtual:pwa-register';
 import { useJuntada } from './hooks/useJuntada';
 import { useToast } from './hooks/useToast';
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
     actualizarAliasPersona,
     agregarGasto,
     eliminarGasto,
+    restaurarGasto,
     cerrarJuntada,
     reabrirJuntada,
     exportarJuntada,
@@ -44,7 +46,8 @@ export const App: React.FC = () => {
   const [modalCargarGastoAbierto, setModalCargarGastoAbierto] = useState(false);
   const [moduloAbierto, setModuloAbierto] = useState<'futbol' | 'truco' | null>(null);
   const [gastoResaltadoId, setGastoResaltadoId] = useState<string | null>(null);
-  const { toast, mostrarToast } = useToast();
+  const [pedidoFocoApodo, setPedidoFocoApodo] = useState(0);
+  const { toast, mostrarToast, cerrarToast } = useToast();
 
   // El resaltado del gasto recién cargado dura lo mismo que su animación
   useEffect(() => {
@@ -70,8 +73,11 @@ export const App: React.FC = () => {
 
   if (cargando) {
     return (
-      <div className="app-container app-cargando">
-        Iniciando Juntadita...
+      <div className="app-container app-cargando" role="status" aria-label="Cargando Juntadita">
+        <div className="splash-logo">
+          <Flame size={32} />
+        </div>
+        <span className="font-title splash-nombre">Juntadita</span>
       </div>
     );
   }
@@ -81,7 +87,7 @@ export const App: React.FC = () => {
       <div className="app-container">
         <CrearJuntada onSubmit={crearJuntada} onImportar={importarJuntada} />
         <InstallPrompt />
-        <Toast toast={toast} />
+        <Toast toast={toast} onCerrar={cerrarToast} />
       </div>
     );
   }
@@ -102,6 +108,22 @@ export const App: React.FC = () => {
       return res;
     };
 
+  // Borrar sin confirmación previa: el toast ofrece deshacer
+  const handleEliminarGasto = (gastoId: string) => {
+    const indice = juntada.gastos.findIndex((g) => g.id === gastoId);
+    const gasto = juntada.gastos[indice];
+    const res = eliminarGasto(gastoId);
+    if (res.ok && gasto) {
+      mostrarToast('Gasto borrado', 'exito', {
+        label: 'Deshacer',
+        onClick: () => restaurarGasto(gasto, indice),
+      });
+    } else if (!res.ok) {
+      mostrarToast(res.error, 'error');
+    }
+    return res;
+  };
+
   const handleConfirmarNueva = () => {
     nuevaJuntada();
     setModalNuevaAbierto(false);
@@ -114,10 +136,7 @@ export const App: React.FC = () => {
     }
 
     if (activeTab === 'personas') {
-      const input = document.querySelector<HTMLInputElement>('input[placeholder="Apodo del pibe..."]');
-      if (input) {
-        input.focus();
-      }
+      setPedidoFocoApodo((n) => n + 1);
       return;
     }
 
@@ -156,7 +175,7 @@ export const App: React.FC = () => {
       )}
 
       {/* Contenido principal scrolleable */}
-      <main className="content-scroll">
+      <main className="content-scroll" key={activeTab}>
         {activeTab === 'personas' && (
           <PersonasView
             juntada={juntada}
@@ -168,13 +187,14 @@ export const App: React.FC = () => {
             }}
             onEliminarPersona={conToast(eliminarPersona, 'Persona eliminada')}
             onActualizarAliasPersona={actualizarAliasPersona}
+            pedidoFocoApodo={pedidoFocoApodo}
           />
         )}
 
         {activeTab === 'gastos' && (
           <GastosView
             juntada={juntada}
-            onEliminarGasto={conToast(eliminarGasto, 'Gasto borrado')}
+            onEliminarGasto={handleEliminarGasto}
             gastoResaltadoId={gastoResaltadoId}
             onCargarGasto={() => setModalCargarGastoAbierto(true)}
           />
@@ -192,6 +212,7 @@ export const App: React.FC = () => {
             onCopiarFallido={() =>
               mostrarToast('No se pudo copiar. Mantené apretado el mensaje para copiarlo.', 'error')
             }
+            onCargarGasto={() => setModalCargarGastoAbierto(true)}
             onImportarJuntada={async (file) => {
               const res = await importarJuntada(file);
               if (res.ok) mostrarToast('Backup importado');
@@ -228,6 +249,8 @@ export const App: React.FC = () => {
               setActiveTab('gastos');
               setGastoResaltadoId(res.id);
               mostrarToast('Gasto guardado');
+              // Confirmación háptica corta en celulares que la soportan
+              navigator.vibrate?.(15);
             }
             return res;
           }}
@@ -295,7 +318,7 @@ export const App: React.FC = () => {
       <InstallPrompt />
 
       {/* Confirmaciones de acciones */}
-      <Toast toast={toast} />
+      <Toast toast={toast} onCerrar={cerrarToast} />
     </div>
   );
 };

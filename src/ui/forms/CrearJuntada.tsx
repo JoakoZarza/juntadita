@@ -21,6 +21,7 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
   const [actividades, setActividades] = useState<CategoriaGasto[]>(['Asado', 'Bebidas']);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [errorImport, setErrorImport] = useState<string | null>(null);
+  const [importando, setImportando] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -131,9 +132,11 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
         />
 
         <div>
-          <label className="field-label mb-10">Actividades previstas</label>
+          <p id="label-actividades" className="field-label mb-10">
+            Actividades previstas
+          </p>
 
-          <div className="actividades-grid">
+          <div className="actividades-grid" role="group" aria-labelledby="label-actividades">
             {listaOpciones.map((op) => {
               const isChecked = actividades.includes(op.id);
               return (
@@ -141,9 +144,12 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
                   type="button"
                   key={op.id}
                   onClick={() => toggleActividad(op.id)}
+                  aria-pressed={isChecked}
                   className={`actividad-opcion ${isChecked ? 'is-active' : ''}`}
                 >
-                  <span className="actividad-icono">{op.icon}</span>
+                  <span className="actividad-icono" aria-hidden="true">
+                    {op.icon}
+                  </span>
                   <span>{op.label}</span>
                 </button>
               );
@@ -165,8 +171,9 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="link-subrayado"
+              disabled={importando}
             >
-              ¿Tenés un backup? Importar
+              {importando ? 'Importando backup…' : '¿Tenés un backup? Importar'}
             </button>
 
             <input
@@ -177,7 +184,9 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
                 const file = e.target.files?.[0];
                 if (!file) return;
                 setErrorImport(null);
+                setImportando(true);
                 const res = await onImportar(file);
+                setImportando(false);
                 if (!res.ok) {
                   setErrorImport(res.error);
                 }
