@@ -20,6 +20,7 @@ export interface FutbolModuloProps {
   onEliminarAnotado: (anotadoId: string) => void;
   onSortearEquipos: () => void;
   onVolver: () => void;
+  onCopiarFallido?: () => void;
 }
 
 type Modalidad = 10 | 14 | 22;
@@ -31,6 +32,7 @@ export const FutbolModulo: React.FC<FutbolModuloProps> = ({
   onEliminarAnotado,
   onSortearEquipos,
   onVolver,
+  onCopiarFallido,
 }) => {
   const [nombreInput, setNombreInput] = useState('');
   const [modalidad, setModalidad] = useState<Modalidad>(10);
@@ -97,6 +99,8 @@ ${lineasEquipoB}`;
     if (exito) {
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
+    } else {
+      onCopiarFallido?.();
     }
   };
 

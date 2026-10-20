@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const {
     juntada,
     cargando,
+    errorGuardado,
     crearJuntada,
     agregarPersona,
     eliminarPersona,
@@ -131,7 +132,28 @@ export const App: React.FC = () => {
         juntada={juntada}
         onNuevaJuntada={() => setModalNuevaAbierto(true)}
         onAbrirModulo={(modulo) => setModuloAbierto(modulo)}
+        onCopiarFallido={() =>
+          mostrarToast('No se pudo copiar. Mantené apretado el alias para copiarlo.', 'error')
+        }
       />
+
+      {/* Aviso persistente si no se pudo guardar en el dispositivo */}
+      {errorGuardado && (
+        <aside role="alert" className="aviso-guardado">
+          <span>
+            {errorGuardado} Los últimos cambios pueden perderse si cerrás la app.
+          </span>
+          <Button
+            variant="danger"
+            onClick={() => {
+              exportarJuntada();
+              mostrarToast('Backup descargado');
+            }}
+          >
+            Exportar backup
+          </Button>
+        </aside>
+      )}
 
       {/* Contenido principal scrolleable */}
       <main className="content-scroll">
@@ -167,6 +189,9 @@ export const App: React.FC = () => {
               exportarJuntada();
               mostrarToast('Backup descargado');
             }}
+            onCopiarFallido={() =>
+              mostrarToast('No se pudo copiar. Mantené apretado el mensaje para copiarlo.', 'error')
+            }
             onImportarJuntada={async (file) => {
               const res = await importarJuntada(file);
               if (res.ok) mostrarToast('Backup importado');
@@ -219,6 +244,7 @@ export const App: React.FC = () => {
           onEliminarAnotado={eliminarAnotado}
           onSortearEquipos={sortearEquipos}
           onVolver={() => setModuloAbierto(null)}
+          onCopiarFallido={() => mostrarToast('No se pudo copiar los equipos.', 'error')}
         />
       )}
 

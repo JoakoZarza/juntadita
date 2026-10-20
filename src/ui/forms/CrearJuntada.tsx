@@ -24,7 +24,18 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const limpiarError = (campo: string) => {
+    if (errores[campo]) {
+      setErrores((prev) => {
+        const resto = { ...prev };
+        delete resto[campo];
+        return resto;
+      });
+    }
+  };
+
   const toggleActividad = (act: CategoriaGasto) => {
+    limpiarError('actividades');
     if (actividades.includes(act)) {
       setActividades(actividades.filter((a) => a !== act));
     } else {
@@ -61,7 +72,7 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
     { id: 'Asado', label: 'Asado', icon: <Flame size={18} /> },
     { id: 'Fútbol', label: 'Fútbol', icon: <Trophy size={18} /> },
     { id: 'Bebidas', label: 'Bebidas', icon: <Beer size={18} /> },
-    { id: 'Otros', label: 'Truco', icon: <Spade size={18} /> },
+    { id: 'Otros', label: 'Truco y otros', icon: <Spade size={18} /> },
   ];
 
   return (
@@ -87,7 +98,11 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
           label="Nombre de la juntada"
           placeholder="Ej: Asado del Viernes"
           value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          onChange={(e) => {
+            setNombre(e.target.value);
+            limpiarError('nombre');
+          }}
+          maxLength={60}
           error={errores.nombre}
         />
 
@@ -95,7 +110,11 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
           label="Tu apodo (Organizador)"
           placeholder="Ej: Joaco"
           value={apodo}
-          onChange={(e) => setApodo(e.target.value)}
+          onChange={(e) => {
+            setApodo(e.target.value);
+            limpiarError('apodo');
+          }}
+          maxLength={30}
           error={errores.apodo}
         />
 
@@ -103,7 +122,11 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
           label="Alias o CBU de cobro"
           placeholder="Ej: joaco.asado.mp"
           value={alias}
-          onChange={(e) => setAlias(e.target.value)}
+          onChange={(e) => {
+            setAlias(e.target.value);
+            limpiarError('alias');
+          }}
+          maxLength={60}
           error={errores.alias}
         />
 

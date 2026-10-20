@@ -1701,3 +1701,18 @@ select option {
   stroke-width: 3.2;
   stroke-linecap: round;
 }
+
+/* Aviso de error al guardar en el dispositivo */
+.aviso-guardado {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-danger-border);
+  background-color: var(--bg-surface);
+  color: var(--accent-danger);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
