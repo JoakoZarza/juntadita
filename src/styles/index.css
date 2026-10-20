@@ -201,7 +201,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-  padding-bottom: calc(72px + var(--safe-bottom));
+  /* TabBar (~62px) + botón + (56px + 14px de aire): el último elemento nunca queda tapado */
+  padding-bottom: calc(140px + var(--safe-bottom));
 }
 
 /* Card Utility */
@@ -1902,4 +1903,28 @@ button.fila-participante {
   .cierre-check {
     animation: none;
   }
+}
+
+/* Invitación a apoyar el proyecto (Cafecito) */
+.cafecito-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cafecito-icono {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-amber-soft);
+  color: var(--accent-amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cafecito-card .btn {
+  flex-shrink: 0;
+  text-decoration: none;
 }

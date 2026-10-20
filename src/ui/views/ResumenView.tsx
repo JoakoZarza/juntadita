@@ -11,7 +11,9 @@ import {
 import { calcularLiquidacionMinimizada } from '../../core/balance';
 import { formatearMonto, generarMensajeWhatsAppMinimizado } from '../../core/whatsapp';
 import { CategoriaGasto, Juntada } from '../../core/types';
+import { CAFECITO_URL } from '../../config';
 import { Button } from '../components/Button';
+import { CafecitoCard } from '../components/CafecitoCard';
 import { Chip } from '../components/Chip';
 import { Modal } from '../components/Modal';
 
@@ -439,6 +441,9 @@ export const ResumenView: React.FC<ResumenViewProps> = ({
           hidden
         />
       </div>
+
+      {/* Apoyo al proyecto: al final, cuando la app ya resolvió las cuentas */}
+      {hayGastos && <CafecitoCard url={CAFECITO_URL} />}
 
       {/* MODAL 1: Cierre de juntada */}
       <Modal
