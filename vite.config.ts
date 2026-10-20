@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -82,5 +82,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Los worktrees de .claude/ son copias del repo: no correr sus tests dos veces
+    exclude: [...configDefaults.exclude, '.claude/**'],
   },
 });

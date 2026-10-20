@@ -30,7 +30,7 @@ Prioridad: **P0** = se nota/rompe confianza · **P1** = pulido de producto · **
 - [x] **P1** Errores que se tragan en silencio: ~~resultado de `onEliminarGasto`/`onEliminarPersona`/`onCerrarJuntada` ignorado~~ (ya muestran toast); fallo de portapapeles en `Header.tsx` y `ResumenView.tsx` sin mensaje.
 - [x] **P1** Fallo al persistir en localStorage (`useJuntada.ts`, `console.error`): avisar al usuario ("No pudimos guardar, exportá un backup").
 - [ ] **P2** Error de import en `CrearJuntada`: el mensaje viene crudo de la excepción. Traducirlo a algo humano ("Ese archivo no es un backup de Juntadita").
-- [ ] **P2** Agregar un Error Boundary global con pantalla de "Algo salió mal" + botón para exportar el backup.
+- [x] **P2** Agregar un Error Boundary global con pantalla de "Algo salió mal" + botón para exportar el backup.
 
 ## 4. Feedback visual
 
