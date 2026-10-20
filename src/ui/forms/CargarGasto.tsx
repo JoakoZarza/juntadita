@@ -174,68 +174,28 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
   return (
     <div className="fullscreen-form">
       {/* Header fijo */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'var(--bg-surface)',
-          minHeight: '60px',
-        }}
-      >
-        <button
+      <header className="subpage-header">
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
+          icon={<ChevronLeft size={20} />}
           onClick={onCancelar}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: 'var(--text-secondary)',
-            fontSize: '15px',
-            fontWeight: 600,
-            padding: '6px 8px',
-            borderRadius: 'var(--radius-sm)',
-          }}
           aria-label="Cancelar carga de gasto"
         >
-          <ChevronLeft size={20} />
-          <span>Cancelar</span>
-        </button>
+          Cancelar
+        </Button>
 
-        <h2 className="font-title" style={{ fontSize: '18px', color: 'var(--text-primary)' }}>
-          Cargar gasto
-        </h2>
+        <h2 className="font-title subpage-title">Cargar gasto</h2>
 
-        <div style={{ width: '48px' }} />
+        <div className="subpage-spacer" />
       </header>
 
       {/* Contenido scrolleable del formulario */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '20px 16px calc(80px + env(safe-area-inset-bottom, 16px)) 16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-        }}
-      >
+      <form onSubmit={handleSubmit} className="subpage-body form-gasto">
         {/* Paso 1: Selección de categoría */}
         <div>
-          <label
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--text-secondary)',
-              display: 'block',
-              marginBottom: '10px',
-            }}
-          >
-            Categoría
-          </label>
+          <label className="field-label mb-10">Categoría</label>
           <div className="chips-scroll">
             {categorias.map((cat) => (
               <Chip
@@ -260,34 +220,16 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
 
         {/* Paso 3: Aportantes y Total Calculado */}
         <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px',
-            }}
-          >
-            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              ¿Quién puso plata?
-            </span>
+          <div className="row-between mb-12">
+            <span className="section-label">¿Quién puso plata?</span>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total:</span>
-              <span
-                className="font-title tabular-nums"
-                style={{
-                  fontSize: '22px',
-                  fontWeight: 700,
-                  color: 'var(--accent-coral)',
-                }}
-              >
-                ${formatearMonto(totalCalculado)}
-              </span>
+            <div className="row-baseline gap-6">
+              <span className="text-xs c-muted">Total:</span>
+              <span className="monto text-xl c-coral">${formatearMonto(totalCalculado)}</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="stack gap-10">
             {filasAportes.map((fila, index) => (
               <div key={fila.id} className="aporte-row">
                 {/* Selector nativo de persona */}
@@ -296,16 +238,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                   onChange={(e) => handleCambiarPersonaFila(fila.id, e.target.value)}
                   aria-label="Quién puso plata"
                   aria-invalid={idsDuplicados.has(fila.persona_id)}
-                  style={{
-                    flex: '1.4',
-                    borderColor: idsDuplicados.has(fila.persona_id)
-                      ? 'var(--accent-danger)'
-                      : undefined,
-                    minHeight: '44px',
-                    padding: '8px 10px',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                  }}
+                  className={`aporte-select ${idsDuplicados.has(fila.persona_id) ? 'has-error' : ''}`}
                 >
                   {personas.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -315,7 +248,7 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                 </select>
 
                 {/* Input de monto con autofocus en la primera fila */}
-                <div style={{ flex: '1', position: 'relative' }}>
+                <div className="aporte-monto">
                   <input
                     type="text"
                     inputMode="numeric"
@@ -324,61 +257,37 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
                     aria-label="Monto aportado"
                     value={fila.montoStr}
                     onChange={(e) => handleCambiarMontoFila(fila.id, e.target.value)}
-                    style={{
-                      minHeight: '44px',
-                      padding: '8px 12px',
-                      fontSize: '15px',
-                      fontFamily: 'var(--font-title)',
-                      textAlign: 'right',
-                    }}
                   />
                 </div>
 
                 {/* Botón eliminar fila */}
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
+                  iconOnly
+                  icon={<Trash2 size={18} />}
                   onClick={() => handleEliminarFila(fila.id)}
                   disabled={filasAportes.length <= 1}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '40px',
-                    minHeight: '40px',
-                    color: filasAportes.length > 1 ? 'var(--text-secondary)' : 'var(--text-muted)',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
                   aria-label="Eliminar aportante"
-                >
-                  <Trash2 size={18} />
-                </button>
+                />
               </div>
             ))}
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <button
+            <div className="row-between">
+              <Button
                 type="button"
+                variant="link"
+                size="sm"
+                icon={<Plus size={16} strokeWidth={2.5} />}
                 onClick={handleAgregarAportante}
                 disabled={filasAportes.length >= personas.length}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: 'var(--accent-coral)',
-                  padding: '8px 4px',
-                  alignSelf: 'flex-start',
-                }}
               >
-                <Plus size={16} strokeWidth={2.5} />
-                <span>Agregar aportante</span>
-              </button>
+                Agregar aportante
+              </Button>
 
               {totalCalculado === 0 && (
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  Cargá al menos un aporte
-                </span>
+                <span className="text-xs c-muted">Cargá al menos un aporte</span>
               )}
             </div>
           </div>
@@ -386,134 +295,56 @@ export const CargarGasto: React.FC<CargarGastoProps> = ({
 
         {/* Paso 4: Selección de Participantes */}
         <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '10px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Participantes
-              </span>
-              <span
-                className="tabular-nums"
-                style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}
-              >
+          <div className="row-between mb-10">
+            <div className="row-baseline gap-8">
+              <span className="section-label">Participantes</span>
+              <span className="tabular-nums text-xs fw-600 c-muted">
                 {participantesSeleccionados.length} de {personas.length} participan
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={seleccionarTodos}
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  padding: '4px 8px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
+            <div className="flex gap-8">
+              <Button type="button" variant="outline" size="sm" onClick={seleccionarTodos}>
                 Todos
-              </button>
-              <button
-                type="button"
-                onClick={seleccionarNinguno}
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  padding: '4px 8px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={seleccionarNinguno}>
                 Ninguno
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="stack gap-8">
             {personas.map((persona) => {
               const isChecked = participantesSeleccionados.includes(persona.id);
               return (
                 <div
                   key={persona.id}
                   onClick={() => toggleParticipante(persona.id)}
-                  className="fila-participante"
-                  style={{
-                    borderColor: isChecked ? 'rgba(224, 86, 56, 0.4)' : 'var(--border-subtle)',
-                    backgroundColor: isChecked ? 'rgba(224, 86, 56, 0.08)' : 'var(--bg-card)',
-                  }}
+                  className={`fila-participante ${isChecked ? 'is-checked' : ''}`}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        width: '22px',
-                        height: '22px',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '2px solid',
-                        borderColor: isChecked ? 'var(--accent-coral)' : 'var(--text-muted)',
-                        backgroundColor: isChecked ? 'var(--accent-coral)' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                      }}
-                    >
+                  <div className="row gap-10">
+                    <div className="check-box">
                       {isChecked && <Check size={14} strokeWidth={3} />}
                     </div>
 
-                    <span
-                      style={{
-                        fontSize: '15px',
-                        fontWeight: 600,
-                        color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)',
-                      }}
-                    >
-                      {persona.apodo}
-                    </span>
+                    <span className="fila-participante-nombre">{persona.apodo}</span>
                   </div>
 
-                  {persona.es_organizador && (
-                    <span className="badge-organizador" style={{ fontSize: '11px' }}>
-                      Org
-                    </span>
-                  )}
+                  {persona.es_organizador && <span className="badge-organizador">Org</span>}
                 </div>
               );
             })}
           </div>
 
           {participantesSeleccionados.length === 0 && (
-            <div style={{ marginTop: '6px', fontSize: '12px', color: 'var(--accent-danger)' }}>
-              Seleccioná al menos un participante
-            </div>
+            <div className="mt-6 text-xs c-danger">Seleccioná al menos un participante</div>
           )}
         </div>
 
-        {errorGlobal && (
-          <div
-            style={{
-              padding: '10px 14px',
-              backgroundColor: 'var(--accent-danger-bg)',
-              color: 'var(--accent-danger)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}
-          >
-            {errorGlobal}
-          </div>
-        )}
+        {errorGlobal && <div className="error-box text-sm fw-500">{errorGlobal}</div>}
 
         {/* Botón Guardar Gasto: siempre habilitado, explica qué falta */}
-        <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
+        <div className="form-gasto-acciones">
           <Button type="submit" variant="primary" fullWidth>
             Guardar gasto
           </Button>

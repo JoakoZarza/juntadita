@@ -50,7 +50,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="stack gap-20">
       <div className="screen-title">
         <Users size={22} color="var(--accent-coral)" />
         <span>Personas ({juntada.personas.length})</span>
@@ -58,19 +58,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
 
       {/* Juntada cerrada: no se suman ni se quitan personas */}
       {estaCerrada && (
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: 'rgba(245, 166, 35, 0.1)',
-            borderColor: 'rgba(245, 166, 35, 0.3)',
-            color: 'var(--accent-amber)',
-            fontSize: '14px',
-            fontWeight: 600,
-          }}
-        >
+        <div className="card aviso-cerrada">
           <Lock size={18} />
           <span>Juntada cerrada. Reabrila desde Resumen para sumar personas.</span>
         </div>
@@ -78,8 +66,8 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
 
       {/* Formulario rápido para sumar comensal */}
       {!estaCerrada && (
-      <form onSubmit={handleSumar} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <form onSubmit={handleSumar} className="card stack gap-10">
+        <div className="stack gap-8">
           <Input
             placeholder="Apodo del pibe..."
             value={nuevoApodo}
@@ -90,23 +78,13 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
             error={errorInput || undefined}
           />
 
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div className="row gap-8">
             <input
               type="text"
               placeholder="Alias de cobro (opcional)"
               value={nuevoAlias}
               onChange={(e) => setNuevoAlias(e.target.value)}
-              style={{
-                flex: 1,
-                backgroundColor: 'var(--bg-input)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-sm)',
-                padding: '10px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px',
-                outline: 'none',
-                minHeight: '44px',
-              }}
+              className="input-alias-nuevo"
             />
 
             <Button type="submit" variant="primary" icon={<UserPlus size={18} />}>
@@ -118,72 +96,25 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
       )}
 
       {/* Lista de comensales */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div className="stack gap-10">
         {juntada.personas.length === 0 ? (
-          <div
-            className="card"
-            style={{
-              textAlign: 'center',
-              padding: '32px 16px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Todavía no hay nadie. Sumá al primer pibe.
-          </div>
+          <div className="card card-vacia">Todavía no hay nadie. Sumá al primer pibe.</div>
         ) : (
           juntada.personas.map((persona) => {
             const validacionBorrado = puedeBorrarPersona(juntada, persona.id);
             const inicial = persona.apodo.charAt(0).toUpperCase();
 
             return (
-              <div
-                key={persona.id}
-                className="card"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  gap: '12px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+              <div key={persona.id} className="card persona-card">
+                <div className="row gap-12 flex-1">
                   {/* Avatar inicial */}
-                  <div
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: 'var(--radius-full)',
-                      backgroundColor: persona.es_organizador
-                        ? 'var(--accent-coral)'
-                        : 'var(--border-subtle)',
-                      color: '#FFFFFF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontFamily: 'var(--font-title)',
-                      fontWeight: 700,
-                      fontSize: '16px',
-                      flexShrink: 0,
-                    }}
-                  >
+                  <div className={`avatar-lg ${persona.es_organizador ? 'is-organizador' : ''}`}>
                     {inicial}
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span
-                        style={{
-                          fontSize: '15px',
-                          fontWeight: 600,
-                          color: 'var(--text-primary)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {persona.apodo}
-                      </span>
+                  <div className="stack gap-3 flex-1">
+                    <div className="row gap-8">
+                      <span className="nombre truncate">{persona.apodo}</span>
 
                       {persona.es_organizador && (
                         <span className="badge-organizador">
@@ -195,14 +126,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
                     {/* Fila de alias de cobro */}
                     {persona.es_organizador ? (
                       <span
-                        style={{
-                          fontSize: '12px',
-                          color: 'var(--text-secondary)',
-                          fontFamily: 'monospace',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
+                        className="text-xs c-secondary mono truncate"
                         title={`Alias: ${juntada.alias_cobro}`}
                       >
                         Alias: {juntada.alias_cobro}
@@ -213,18 +137,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
                         placeholder="Alias (opcional)"
                         value={persona.alias_cobro || ''}
                         onChange={(e) => onActualizarAliasPersona?.(persona.id, e.target.value)}
-                        style={{
-                          fontSize: '12px',
-                          color: persona.alias_cobro ? 'var(--text-primary)' : 'var(--text-secondary)',
-                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid var(--border-subtle)',
-                          borderRadius: 'var(--radius-sm)',
-                          padding: '3px 8px',
-                          fontFamily: 'monospace',
-                          width: '100%',
-                          maxWidth: '180px',
-                          outline: 'none',
-                        }}
+                        className={`input-alias-inline ${persona.alias_cobro ? 'has-value' : ''}`}
                       />
                     )}
                   </div>
@@ -232,7 +145,12 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
 
                 {/* Botón de eliminar */}
                 {!persona.es_organizador && !estaCerrada && (
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    iconOnly
+                    icon={<Trash2 size={18} />}
                     onClick={() => {
                       if (validacionBorrado.ok) {
                         setPersonaABorrar({ id: persona.id, apodo: persona.apodo });
@@ -241,21 +159,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
                     disabled={!validacionBorrado.ok}
                     title={validacionBorrado.ok ? 'Eliminar persona' : validacionBorrado.motivo}
                     aria-label={`Eliminar a ${persona.apodo}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: 'var(--radius-sm)',
-                      color: validacionBorrado.ok
-                        ? 'var(--text-secondary)'
-                        : 'var(--text-muted)',
-                      backgroundColor: 'transparent',
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  />
                 )}
               </div>
             );
@@ -280,7 +184,7 @@ export const PersonasView: React.FC<PersonasViewProps> = ({
         }
       >
         ¿Estás seguro de que querés eliminar a{' '}
-        <strong style={{ color: 'var(--text-primary)' }}>{personaABorrar?.apodo}</strong> de la juntada?
+        <strong>{personaABorrar?.apodo}</strong> de la juntada?
       </Modal>
     </div>
   );

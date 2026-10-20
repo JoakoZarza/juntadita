@@ -37,24 +37,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   ];
 
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        maxWidth: '480px',
-        margin: '0 auto',
-        backgroundColor: 'var(--bg-surface)',
-        borderTop: '1px solid var(--border-subtle)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '6px 12px calc(6px + var(--safe-bottom)) 12px',
-        minHeight: '62px',
-        zIndex: 40,
-      }}
-    >
+    <nav className="tabbar">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
@@ -64,51 +47,16 @@ export const TabBar: React.FC<TabBarProps> = ({
             onClick={() => onTabChange(tab.id)}
             aria-label={tab.label}
             aria-current={isActive ? 'page' : undefined}
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '3px',
-              minHeight: '48px',
-              padding: '6px 8px',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: isActive ? 'var(--accent-coral)' : 'transparent',
-              color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-              transition: 'all var(--transition-fast)',
-              position: 'relative',
-            }}
+            className={`tab-btn ${isActive ? 'is-active' : ''}`}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div className="row gap-4">
               {tab.icon}
               {tab.badge !== undefined && tab.badge > 0 && (
-                <span
-                  className="tabular-nums"
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    backgroundColor: isActive ? 'rgba(0,0,0,0.25)' : 'var(--bg-card)',
-                    color: isActive ? '#FFFFFF' : 'var(--text-primary)',
-                    padding: '1px 5px',
-                    borderRadius: 'var(--radius-full)',
-                    border: isActive ? 'none' : '1px solid var(--border-subtle)',
-                  }}
-                >
-                  {tab.badge}
-                </span>
+                <span className="tab-badge">{tab.badge}</span>
               )}
             </div>
 
-            <span
-              style={{
-                fontSize: '12px',
-                fontWeight: isActive ? 600 : 500,
-                fontFamily: 'var(--font-title)',
-              }}
-            >
-              {tab.label}
-            </span>
+            <span className="tab-label">{tab.label}</span>
           </button>
         );
       })}

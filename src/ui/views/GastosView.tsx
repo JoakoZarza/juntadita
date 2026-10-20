@@ -76,53 +76,24 @@ export const GastosView: React.FC<GastosViewProps> = ({
   const totalGastadoFiltrado = gastosFiltrados.reduce((sum, g) => sum + g.monto_total, 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="stack gap-16">
       {/* Estado de juntada cerrada: cartel con ícono Lock */}
       {juntada.estado === 'cerrada' && (
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: 'rgba(245, 166, 35, 0.1)',
-            borderColor: 'rgba(245, 166, 35, 0.3)',
-            color: 'var(--accent-amber)',
-            fontSize: '14px',
-            fontWeight: 600,
-          }}
-        >
+        <div className="card aviso-cerrada">
           <Lock size={18} />
           <span>Juntada cerrada. Cuentas congeladas.</span>
         </div>
       )}
 
       {/* Cabecera del tab */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div className="screen-title" style={{ marginBottom: 0 }}>
+      <div className="tab-header tab-header-baseline">
+        <div className="screen-title">
           <Wallet size={22} color="var(--accent-coral)" />
           <span>Gastos ({juntada.gastos.length})</span>
         </div>
 
         {totalGastadoFiltrado > 0 && (
-          <div style={{ textAlign: 'right' }}>
-            <span
-              className="font-title tabular-nums"
-              style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: 'var(--accent-coral)',
-              }}
-            >
-              ${formatearMonto(totalGastadoFiltrado)}
-            </span>
-          </div>
+          <span className="monto text-lg c-coral">${formatearMonto(totalGastadoFiltrado)}</span>
         )}
       </div>
 
@@ -141,40 +112,22 @@ export const GastosView: React.FC<GastosViewProps> = ({
 
       {/* Lista de gastos / Estado vacío */}
       {gastosFiltrados.length === 0 ? (
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            padding: '48px 20px',
-            color: 'var(--text-secondary)',
-            gap: '12px',
-          }}
-        >
+        <div className="card card-vacia card-vacia-lg">
           {juntada.estado === 'cerrada' ? (
             <>
               <Lock size={40} color="var(--accent-amber)" strokeWidth={1.5} />
-              <p style={{ fontSize: '15px', maxWidth: '280px', color: 'var(--accent-amber)' }}>
-                Juntada cerrada. Cuentas congeladas.
-              </p>
+              <p className="text-base c-amber">Juntada cerrada. Cuentas congeladas.</p>
             </>
           ) : (
             <>
               <Wallet size={40} color="var(--text-muted)" strokeWidth={1.5} />
-              <p style={{ fontSize: '15px', maxWidth: '280px' }}>
+              <p className="text-base">
                 {filtro === 'Todos'
                   ? 'Todavía no hay gastos cargados. Tocá el botón + para sumar el primero.'
                   : `No hay gastos registrados en la categoría ${filtro}.`}
               </p>
               {filtro === 'Todos' && onCargarGasto && (
-                <Button
-                  variant="primary"
-                  onClick={onCargarGasto}
-                  style={{ marginTop: '8px' }}
-                >
+                <Button variant="primary" onClick={onCargarGasto} className="mt-8">
                   Cargar primer gasto
                 </Button>
               )}
@@ -182,7 +135,7 @@ export const GastosView: React.FC<GastosViewProps> = ({
           )}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="stack gap-12">
           {gastosFiltrados.map((gasto) => {
             const hora = formatHora(gasto.created_at);
             const tituloGasto = gasto.descripcion?.trim() ? gasto.descripcion.trim() : gasto.categoria;
@@ -193,128 +146,47 @@ export const GastosView: React.FC<GastosViewProps> = ({
                 className={`gasto-card ${gasto.id === gastoResaltadoId ? 'gasto-card-nuevo' : ''}`}
               >
                 {/* Fila superior: Chip + hora a la izquierda, Botón Trash2 arriba a la derecha */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="row-between">
+                  <div className="row gap-8">
                     <Chip
                       label={gasto.categoria}
                       categoria={gasto.categoria}
                       size="sm"
                       active
                     />
-                    {hora && (
-                      <span
-                        style={{
-                          fontSize: '12px',
-                          color: 'var(--text-muted)',
-                          fontFamily: 'var(--font-title)',
-                        }}
-                      >
-                        {hora}
-                      </span>
-                    )}
+                    {hora && <span className="gasto-hora">{hora}</span>}
                   </div>
 
                   {juntada.estado === 'abierta' && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      icon={<Trash2 size={16} />}
                       onClick={() => setGastoABorrar(gasto)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--text-muted)',
-                        padding: '4px',
-                        borderRadius: 'var(--radius-sm)',
-                        minHeight: '32px',
-                        minWidth: '32px',
-                      }}
                       title="Borrar gasto"
                       aria-label="Borrar gasto"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    />
                   )}
                 </div>
 
-                {/* Fila central: Descripción en blanco a la izq, Monto tabular 24px blanco a la der */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    justifyContent: 'space-between',
-                    gap: '12px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: 'var(--text-primary)',
-                      wordBreak: 'break-word',
-                      flex: 1,
-                    }}
-                  >
-                    {tituloGasto}
-                  </span>
+                {/* Fila central: descripción a la izquierda, monto destacado a la derecha */}
+                <div className="gasto-fila-principal">
+                  <span className="gasto-titulo">{tituloGasto}</span>
 
-                  <span
-                    className="font-title tabular-nums"
-                    style={{
-                      fontSize: '24px',
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <span className="monto text-xl c-primary nowrap">
                     ${formatearMonto(gasto.monto_total)}
                   </span>
                 </div>
 
                 {/* Fila inferior: Aportantes a la izquierda, Badge con Users a la derecha */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingTop: '8px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-                    gap: '8px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      color: 'var(--text-secondary)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      flex: 1,
-                    }}
-                    title={formatTextoAportantes(gasto)}
-                  >
+                <div className="gasto-pie">
+                  <span className="gasto-aportantes" title={formatTextoAportantes(gasto)}>
                     {formatTextoAportantes(gasto)}
                   </span>
 
-                  <div
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      padding: '2px 8px',
-                      borderRadius: 'var(--radius-full)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <div className="gasto-participantes">
                     <Users size={13} />
                     <span className="tabular-nums">
                       {gasto.participantes_ids.length}/{juntada.personas.length} pers

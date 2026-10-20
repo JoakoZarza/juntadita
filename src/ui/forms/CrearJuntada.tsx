@@ -65,42 +65,13 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
   ];
 
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '24px 20px calc(24px + var(--safe-bottom)) 20px',
-        maxWidth: '440px',
-        margin: '0 auto',
-        width: '100%',
-      }}
-    >
-      <div style={{ marginBottom: '28px' }}>
-        <div
-          aria-hidden="true"
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: 'rgba(224, 86, 56, 0.12)',
-            color: 'var(--accent-coral)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '16px',
-          }}
-        >
+    <div className="crear-juntada">
+      <div className="crear-intro">
+        <div aria-hidden="true" className="crear-logo">
           <Flame size={26} />
         </div>
-        <h1
-          className="font-title"
-          style={{ fontSize: '28px', color: 'var(--text-primary)', marginBottom: '8px' }}
-        >
-          Dividí los gastos de la juntada
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '16px' }}>
+        <h1 className="font-title crear-titulo">Dividí los gastos de la juntada</h1>
+        <p className="crear-bajada">
           Anotá quién puso plata, Juntadita calcula quién le debe a quién y te arma el mensaje
           para el grupo.
         </p>
@@ -111,7 +82,7 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
         </ol>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSubmit} className="stack gap-20">
         <Input
           label="Nombre de la juntada"
           placeholder="Ej: Asado del Viernes"
@@ -137,25 +108,9 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
         />
 
         <div>
-          <label
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--text-secondary)',
-              display: 'block',
-              marginBottom: '10px',
-            }}
-          >
-            Actividades previstas
-          </label>
+          <label className="field-label mb-10">Actividades previstas</label>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '10px',
-            }}
-          >
+          <div className="actividades-grid">
             {listaOpciones.map((op) => {
               const isChecked = actividades.includes(op.id);
               return (
@@ -163,70 +118,30 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
                   type="button"
                   key={op.id}
                   onClick={() => toggleActividad(op.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid',
-                    borderColor: isChecked ? 'var(--accent-coral)' : 'var(--border-subtle)',
-                    backgroundColor: isChecked ? 'rgba(224, 86, 56, 0.12)' : 'var(--bg-card)',
-                    color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    fontWeight: isChecked ? 600 : 500,
-                    fontSize: '14px',
-                    minHeight: '48px',
-                    textAlign: 'left',
-                  }}
+                  className={`actividad-opcion ${isChecked ? 'is-active' : ''}`}
                 >
-                  <span
-                    style={{
-                      color: isChecked ? 'var(--accent-coral)' : 'var(--text-secondary)',
-                      display: 'flex',
-                    }}
-                  >
-                    {op.icon}
-                  </span>
+                  <span className="actividad-icono">{op.icon}</span>
                   <span>{op.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {errores.actividades && (
-            <span
-              style={{
-                fontSize: '12px',
-                color: 'var(--accent-danger)',
-                marginTop: '6px',
-                display: 'block',
-              }}
-            >
-              {errores.actividades}
-            </span>
-          )}
+          {errores.actividades && <span className="error-text">{errores.actividades}</span>}
         </div>
 
-        <div style={{ marginTop: '12px' }}>
+        <div className="mt-12">
           <Button type="submit" variant="primary" fullWidth>
             Crear juntada
           </Button>
         </div>
 
         {onImportar && (
-          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <div className="crear-importar">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              style={{
-                fontSize: '13px',
-                color: 'var(--text-secondary)',
-                textDecoration: 'underline',
-                textUnderlineOffset: '3px',
-                padding: '8px',
-                background: 'none',
-                border: 'none',
-              }}
+              className="link-subrayado"
             >
               ¿Tenés un backup? Importar
             </button>
@@ -245,23 +160,10 @@ export const CrearJuntada: React.FC<CrearJuntadaProps> = ({ onSubmit, onImportar
                 }
                 e.target.value = '';
               }}
-              style={{ display: 'none' }}
+              hidden
             />
 
-            {errorImport && (
-              <div
-                style={{
-                  marginTop: '8px',
-                  padding: '8px 12px',
-                  backgroundColor: 'var(--accent-danger-bg)',
-                  color: 'var(--accent-danger)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '12px',
-                }}
-              >
-                {errorImport}
-              </div>
-            )}
+            {errorImport && <div className="error-box text-xs mt-8">{errorImport}</div>}
           </div>
         )}
       </form>

@@ -55,47 +55,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
     <aside
       role="banner"
       aria-label="Aviso para instalar la aplicación"
-      className={esModoIOS ? 'banner-ios' : undefined}
-      style={{
-        position: 'fixed',
-        bottom: 'calc(76px + var(--safe-bottom))',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 32px)',
-        maxWidth: '448px',
-        backgroundColor: 'var(--bg-surface)',
-        border: esModoIOS
-          ? '1.5px solid var(--accent-coral)'
-          : '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-md)',
-        padding: '12px 14px',
-        zIndex: 85,
-        boxShadow: esModoIOS
-          ? '0 0 12px -4px rgba(224, 86, 56, 0.35)'
-          : '0 8px 24px rgba(0, 0, 0, 0.45)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '10px',
-        overflow: 'hidden',
-      }}
+      className={`banner-flotante install-banner ${esModoIOS ? 'banner-ios' : ''}`}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: isIOS
-              ? 'rgba(245, 166, 35, 0.12)'
-              : 'rgba(224, 86, 56, 0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            color: isIOS ? 'var(--accent-amber)' : 'var(--accent-coral)',
-          }}
-        >
+      <div className="row gap-12 flex-1">
+        <div className={`install-icono ${isIOS ? 'is-ios' : ''}`}>
           {isIOS && !canInstall ? (
             <Share size={20} strokeWidth={2} />
           ) : (
@@ -103,25 +66,9 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-title)',
-              lineHeight: 1.2,
-            }}
-          >
-            Instalá Juntadita en tu celu
-          </span>
-          <span
-            style={{
-              fontSize: '11px',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.3,
-            }}
-          >
+        <div className="stack gap-2 flex-1">
+          <span className="install-titulo">Instalá Juntadita en tu celu</span>
+          <span className="install-texto">
             {isIOS && !canInstall
               ? 'Tocá el botón Compartir y elegí Añadir a pantalla de inicio'
               : 'Acceso directo, sin navegador, funciona offline'}
@@ -129,27 +76,9 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+      <div className="row gap-4 shrink-0">
         {canInstall && (
-          <button
-            type="button"
-            onClick={handlePromptInstall}
-            style={{
-              backgroundColor: 'var(--accent-coral)',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              padding: '8px 14px',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: 'var(--font-title)',
-              cursor: 'pointer',
-              minHeight: '48px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+          <button type="button" onClick={handlePromptInstall} className="install-btn">
             Instalar
           </button>
         )}
@@ -158,18 +87,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = (props) => {
           type="button"
           onClick={handleDismiss}
           aria-label="Cerrar aviso de instalación"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            minWidth: '48px',
-            minHeight: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            padding: 0,
-          }}
+          className="install-cerrar"
         >
           <X size={18} />
         </button>
