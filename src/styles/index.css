@@ -1103,7 +1103,8 @@ select option {
 .fab-btn {
   position: fixed;
   bottom: calc(76px + var(--safe-bottom));
-  right: calc(50% - 220px);
+  /* 16px dentro del contenedor de 480px; en pantallas angostas, 16px del borde */
+  right: max(16px, calc(50% - 224px));
   z-index: 45;
   width: 56px;
   height: 56px;
